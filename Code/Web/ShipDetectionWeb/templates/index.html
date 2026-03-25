@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="hero-section position-relative overflow-hidden">
+    <div class="glow-bg-top-right"></div>
+    <div class="glow-bg-bottom-left"></div>
+
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="row align-items-center min-vh-75">
+            <div class="col-lg-7 hero-content pt-5">
+                <div class="badge bg-dark-glass text-highlight border border-secondary mb-4 px-3 py-2 rounded-pill font-monospace animate-fade-down">
+                    <i class="fas fa-satellite-dish me-2"></i>GROUP 14 CAPSTONE PROJECT
+                </div>
+
+                <h1 class="display-3 fw-bold mb-4 animate-fade-up" style="line-height: 1.1;">
+                    Next-Gen Maritime <br>
+                    <span class="text-gradient-main">Surveillance System.</span>
+                </h1>
+
+                <p class="hero-subtitle mb-5 text-white-50 animate-fade-up delay-100" style="font-size: 1.2rem; max-width: 600px;">
+                    Hệ thống giám sát hàng hải thông minh sử dụng Deep Learning.
+                    Phát hiện tàu thuyền từ ảnh vệ tinh và video thời gian thực với độ chính xác vượt trội.
+                </p>
+
+                <div class="d-flex align-items-center gap-3 animate-fade-up delay-200">
+                    <a href="#capabilities" class="btn btn-tech-lg glow-on-hover">
+                        Explore Features <i class="fas fa-arrow-down ms-2"></i>
+                    </a>
+                    <a href="https://github.com" target="_blank" class="btn btn-outline-light btn-lg rounded-pill px-4">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block position-relative animate-fade-in delay-300">
+                <div class="radar-container">
+                    <div class="radar-grid"></div>
+                    <div class="radar-crosshair"></div>
+
+                    <div class="radar-scan"></div>
+
+                    <div class="ship-marker" style="top: 18%; left: 65%; --d: 0.4s;">
+                        <i class="fas fa-location-arrow" style="transform: rotate(30deg)"></i>
+                        <span class="ship-label">ID-01</span>
+                    </div>
+
+                    <div class="ship-marker" style="top: 70%; left: 70%; --d: 1.6s;">
+                        <i class="fas fa-location-arrow" style="transform: rotate(135deg)"></i>
+                        <span class="ship-label">ID-02</span>
+                    </div>
+
+                    <div class="ship-marker" style="top: 50%; left: 10%; --d: 3.0s;">
+                        <i class="fas fa-location-arrow" style="transform: rotate(-90deg)"></i>
+                        <span class="ship-label">ID-03</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="capabilities" class="container py-5 mt-4">
+    <div class="row mb-5 text-center">
+        <div class="col-12 animate-on-scroll">
+            <h6 class="text-highlight font-monospace text-uppercase ls-2">System Modules</h6>
+            <h2 class="text-white display-5 fw-bold">Select Your Mission</h2>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4 col-md-6 animate-on-scroll delay-100">
+            <a href="/demo" class="text-decoration-none">
+                <div class="feature-card h-100">
+                    <div class="card-glow"></div>
+                    <div class="icon-wrapper bg-blue-gradient mb-4">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <h3 class="text-white mb-3">Image Analysis</h3>
+                    <p class="text-muted mb-4">Phân tích chi tiết từng ảnh vệ tinh. Hỗ trợ các công cụ hậu xử lý (Preprocessing) và bản đồ nhiệt.</p>
+                    <span class="link-arrow text-blue">Start Analysis <i class="fas fa-arrow-right ms-2"></i></span>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-lg-4 col-md-6 animate-on-scroll delay-200">
+            <a href="/compare" class="text-decoration-none">
+                <div class="feature-card h-100">
+                    <div class="card-glow"></div>
+                    <div class="icon-wrapper bg-purple-gradient mb-4">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <h3 class="text-white mb-3">Benchmarking</h3>
+                    <p class="text-muted mb-4">So sánh hiệu năng 4 mô hình (YOLO, R3Det...) trên cùng một ảnh. Trực quan hóa tốc độ và độ chính xác.</p>
+                    <span class="link-arrow text-purple">Compare Models <i class="fas fa-arrow-right ms-2"></i></span>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-lg-4 col-md-6 animate-on-scroll delay-300">
+            <a href="/video_ui" class="text-decoration-none">
+                <div class="feature-card h-100 border-danger-glow">
+                    <div class="position-absolute top-0 end-0 m-3 badge bg-danger animate-pulse">LIVE BETA</div>
+                    <div class="card-glow"></div>
+                    <div class="icon-wrapper bg-red-gradient mb-4">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <h3 class="text-white mb-3">Video Surveillance</h3>
+                    <p class="text-muted mb-4">Phát hiện thời gian thực trên luồng Video. Tối ưu hóa FPS với cơ chế Frame Skipping thông minh.</p>
+                    <span class="link-arrow text-danger">Watch Stream <i class="fas fa-arrow-right ms-2"></i></span>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="container py-5 mt-5 border-top border-secondary border-opacity-25">
+    <div class="row align-items-center py-5">
+        <div class="col-lg-4 mb-4 mb-lg-0 animate-on-scroll">
+            <h2 class="text-white fw-bold mb-3">Powered by<br><span class="text-gradient-gold">State-of-the-Art AI</span></h2>
+            <p class="text-muted">Hệ thống tích hợp các kiến trúc mạng nơ-ron tiên tiến nhất hiện nay, được huấn luyện trên bộ dữ liệu DOTA.</p>
+            <a href="/models" class="btn btn-outline-secondary rounded-pill mt-3">View Technical Specs</a>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="row g-3">
+                <div class="col-md-4 animate-on-scroll delay-100">
+                    <div class="tech-box">
+                        <h5 class="text-white">R3Det</h5>
+                        <div class="progress my-2" style="height: 4px;"><div class="progress-bar bg-success" style="width: 85%"></div></div>
+                        <small class="text-muted">High Precision Oriented</small>
+                    </div>
+                </div>
+                <div class="col-md-4 animate-on-scroll delay-200">
+                    <div class="tech-box">
+                        <h5 class="text-white">Oriented R-CNN</h5>
+                        <div class="progress my-2" style="height: 4px;"><div class="progress-bar bg-info" style="width: 92%"></div></div>
+                        <small class="text-muted">Two-stage Detector</small>
+                    </div>
+                </div>
+                <div class="col-md-4 animate-on-scroll delay-300">
+                    <div class="tech-box">
+                        <h5 class="text-white">YOLOv8-OBB</h5>
+                        <div class="progress my-2" style="height: 4px;"><div class="progress-bar bg-danger" style="width: 98%"></div></div>
+                        <small class="text-muted">Real-time Performance</small>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mt-3 animate-on-scroll delay-400"> <div class="tech-box">
+                        <h5 class="text-white">Faster R-CNN</h5>
+                        <div class="progress my-2" style="height: 4px;"><div class="progress-bar bg-warning" style="width: 78%"></div></div>
+                        <small class="text-muted">Robust Baseline (HBB)</small>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mt-3 animate-on-scroll delay-500">
+                    <div class="tech-box">
+                        <h5 class="text-white">Mask R-CNN</h5>
+                        <div class="progress my-2" style="height: 4px;">
+                            <div class="progress-bar" style="width: 82%; background-color: #d63384;"></div>
+                        </div>
+                        <small class="text-muted">Instance Segmentation</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* 1. Hiệu ứng nền */
+    .glow-bg-top-right { position: absolute; top: -10%; right: -10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(0,255,255,0.1) 0%, rgba(0,0,0,0) 70%); filter: blur(60px); z-index: 1; }
+    .glow-bg-bottom-left { position: absolute; bottom: -10%; left: -10%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(100,255,218,0.08) 0%, rgba(0,0,0,0) 70%); filter: blur(60px); z-index: 1; }
+
+    /* 2. Typography */
+    .text-gradient-main { background: linear-gradient(90deg, #64ffda 0%, #48bfe3 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .text-gradient-gold { background: linear-gradient(90deg, #ffd700 0%, #ff8c00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .ls-2 { letter-spacing: 2px; }
+
+    /* 3. Feature Cards (Thẻ bài chức năng) */
+    .feature-card {
+        background: rgba(17, 25, 40, 0.75);
+        backdrop-filter: blur(16px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.125);
+        border-radius: 16px;
+        padding: 40px 30px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: pointer;
+    }
+    .feature-card:hover { transform: translateY(-10px); border-color: rgba(100, 255, 218, 0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+
+    .icon-wrapper { width: 70px; height: 70px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: white; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+    .bg-blue-gradient { background: linear-gradient(135deg, #00b4db, #0083b0); }
+    .bg-purple-gradient { background: linear-gradient(135deg, #8e2de2, #4a00e0); }
+    .bg-red-gradient { background: linear-gradient(135deg, #cb2d3e, #ef473a); }
+
+    .link-arrow { font-weight: bold; font-size: 0.9rem; transition: margin-left 0.3s; }
+    .feature-card:hover .link-arrow { margin-left: 5px; }
+    .text-blue { color: #48bfe3; } .text-purple { color: #a56eff; } .text-danger { color: #ff5c5c; }
+
+    /* 4. Video Card Special */
+    .border-danger-glow:hover { border-color: rgba(255, 92, 92, 0.5); box-shadow: 0 0 30px rgba(255, 92, 92, 0.15); }
+    .animate-pulse { animation: pulse-red 2s infinite; }
+    @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
+
+    /* 5. Tech Box */
+    .tech-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; transition: 0.3s; }
+    .tech-box:hover { background: rgba(255, 255, 255, 0.08); transform: translateY(-3px); }
+
+    /* 6. Hero Button */
+    .btn-tech-lg { background: linear-gradient(90deg, #64ffda, #48bfe3); border: none; color: #000; padding: 15px 35px; border-radius: 50px; font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px; transition: all 0.3s; }
+    .btn-tech-lg:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(100, 255, 218, 0.4); color: #000; }
+
+    /* 7. Radar Animation (Trang trí) */
+    .radar-container { width: 300px; height: 300px; position: absolute; top: 0; right: 0; border-radius: 50%; border: 1px solid rgba(100, 255, 218, 0.1); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .radar-scan { position: absolute; width: 100%; height: 100%; background: conic-gradient(from 0deg, transparent 0deg, rgba(100, 255, 218, 0.1) 360deg); animation: scan 4s linear infinite; border-radius: 50%; }
+    .ship-dot { width: 6px; height: 6px; background: #ff5c5c; border-radius: 50%; position: absolute; box-shadow: 0 0 10px #ff5c5c; animation: blink 2s infinite; }
+    @keyframes scan { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    /* 8. Fade Animations */
+    .animate-fade-up { animation: fadeInUp 0.8s ease forwards; opacity: 0; transform: translateY(20px); }
+    .animate-fade-down { animation: fadeInDown 0.8s ease forwards; opacity: 0; transform: translateY(-20px); }
+    .animate-fade-in { animation: fadeIn 1s ease forwards; opacity: 0; }
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInDown { to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { to { opacity: 1; } }
+    .delay-100 { animation-delay: 0.1s; } .delay-200 { animation-delay: 0.2s; } .delay-300 { animation-delay: 0.3s; } .delay-400 { animation-delay: 0.4s; }
+</style>
+
+<script>
+    // Simple Intersection Observer for Scroll Animations
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-fade-up');
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+    document.querySelectorAll('.animate-on-scroll').forEach((el) => observer.observe(el));
+</script>
+
+{% endblock %}

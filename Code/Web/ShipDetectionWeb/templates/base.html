@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OceanEye | Ship Detection System</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+
+    <style>
+      :root {
+        --bg-dark: #0a192f; /* Nền xanh đen đậm */
+        --bg-glass: rgba(17, 34, 64, 0.85); /* Hiệu ứng kính */
+        --text-main: #8892b0; /* Chữ xám xanh */
+        --text-bright: #ccd6f6; /* Chữ trắng sáng */
+        --highlight: #64ffda; /* Màu điểm nhấn (Xanh Neon) */
+        --border-glass: rgba(100, 255, 218, 0.1);
+      }
+
+      body {
+        background-color: var(--bg-dark);
+        color: var(--text-main);
+        font-family: "Rajdhani", sans-serif; /* Font công nghệ */
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      /* --- NAVBAR CAO CẤP --- */
+      .navbar {
+        background: rgba(10, 25, 47, 0.9);
+        backdrop-filter: blur(12px); /* Làm mờ nền sau navbar */
+        border-bottom: 1px solid var(--border-glass);
+        padding: 15px 0;
+        transition: all 0.3s ease;
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        font-size: 1.6rem;
+        color: var(--text-bright) !important;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+      }
+
+      .navbar-brand i {
+        color: var(--highlight);
+      }
+
+      .nav-link {
+        color: var(--text-bright) !important;
+        font-weight: 500;
+        font-size: 1.05rem;
+        margin: 0 8px;
+        position: relative;
+        transition: color 0.3s;
+      }
+
+      .nav-link:hover,
+      .nav-link.active {
+        color: var(--highlight) !important;
+      }
+
+      /* Hiệu ứng gạch chân chạy ra khi hover */
+      .nav-link::after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -2px;
+        left: 0;
+        background-color: var(--highlight);
+        transition: width 0.3s ease-in-out;
+      }
+      .nav-link:hover::after,
+      .nav-link.active::after {
+        width: 100%;
+      }
+
+      /* Nút Live Detect Đặc Biệt */
+      .btn-scan-nav {
+        border: 1px solid var(--highlight);
+        color: var(--highlight) !important;
+        border-radius: 4px;
+        padding: 6px 18px !important;
+        font-family: "Roboto Mono", monospace;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+        margin-left: 15px;
+      }
+
+      .btn-scan-nav:hover,
+      .btn-scan-nav.active {
+        background: rgba(100, 255, 218, 0.1);
+        box-shadow: 0 0 15px rgba(100, 255, 218, 0.3);
+        text-decoration: none;
+      }
+      .btn-scan-nav::after {
+        display: none;
+      } /* Tắt gạch chân cho nút này */
+
+      /* Mobile Toggler */
+      .navbar-toggler {
+        border-color: var(--highlight);
+        background-color: transparent;
+      }
+      .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(100, 255, 218, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+      }
+
+      /* --- CONTENT WRAPPER --- */
+      .main-wrapper {
+        flex: 1; /* Đẩy footer xuống đáy */
+        padding-top: 20px;
+      }
+
+      /* --- FOOTER --- */
+      footer {
+        margin-top: auto;
+        border-top: 1px solid var(--border-glass);
+        padding: 30px 0;
+        background: rgba(2, 12, 27, 0.8);
+        font-size: 0.9rem;
+      }
+      footer strong {
+        color: var(--highlight);
+      }
+
+      /* Glass Panel Helper (Dùng chung cho các trang con) */
+      .glass-panel {
+        background: var(--bg-glass);
+        border: 1px solid var(--border-glass);
+        border-radius: 10px;
+        box-shadow: 0 10px 30px -15px rgba(2, 12, 27, 0.7);
+      }
+      .text-highlight {
+        color: var(--highlight) !important;
+      }
+      .form-label-tech {
+        color: var(--text-bright);
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg sticky-top">
+      <div class="container-fluid px-lg-5">
+        <a class="navbar-brand" href="/">
+          <i class="fas fa-satellite-dish me-2"></i>Ocean<span
+            class="text-highlight"
+            >Eye</span
+          >
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto align-items-center">
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.path == '/' %}active{% endif %}"
+                href="/"
+              >
+                Home
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.path == '/dataset' %}active{% endif %}"
+                href="/dataset"
+              >
+                Dataset
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.path == '/models' or '/model/' in request.path %}active{% endif %}"
+                href="/models"
+              >
+                Models
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.path == '/compare' %}active{% endif %}"
+                href="/compare"
+              >
+                Compare
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.path == '/video_ui' %}active{% endif %}"
+                href="/video_ui"
+              >
+                <i class="fas fa-video me-1"></i>Video
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a
+                class="nav-link btn-scan-nav {% if request.path == '/demo' %}active{% endif %}"
+                href="/demo"
+              >
+                <i class="fas fa-crosshairs me-2"></i>Live Detect
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="main-wrapper">{% block content %}{% endblock %}</div>
+
+    <footer class="text-center">
+      <div class="container">
+        <p class="mb-1 text-bright">
+          Developed by <strong>Group 14</strong> - Digital Image Processing
+          Class 2025
+        </p>
+        <small class="text-muted font-monospace"
+          >Powered by R3Det, Oriented R-CNN, Mask R-CNN, Faster R-CNN &
+          YOLOv8-Obb</small
+        >
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
+

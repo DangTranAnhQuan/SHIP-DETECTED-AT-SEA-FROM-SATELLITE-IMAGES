@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h2 class="page-header-title" style="color: #ccd6f6;">{{ model.name }}</h2>
+            <div class="header-line"></div>
+            <p class="page-header-desc mt-3">
+                <i class="fas fa-fingerprint me-2 text-highlight"></i>
+                {{ model.full_name }}
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-3">
+            <div class="sidebar-menu sticky-top" style="top: 100px;">
+                <div class="list-group list-group-flush" id="list-tab" role="tablist">
+
+                    <a class="sidebar-item active" data-bs-toggle="list" href="#tab-specs" role="tab">
+                        <i class="fas fa-microchip me-2"></i>Thông số kỹ thuật
+                    </a>
+
+                    <a class="sidebar-item" data-bs-toggle="list" href="#tab-charts" role="tab">
+                        <i class="fas fa-chart-line me-2"></i>Biểu đồ đánh giá
+                    </a>
+
+                    <a class="sidebar-item" data-bs-toggle="list" href="#tab-ai" role="tab">
+                        <i class="fas fa-brain me-2"></i>AI Đánh giá
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="tab-content">
+
+                <div class="tab-pane fade show active" id="tab-specs">
+
+                    <div class="tech-card mb-4 p-4">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-info-circle fa-2x me-3 text-info"></i>
+                            <div>
+                                <h5 class="text-white mb-2">Mô tả tổng quan</h5>
+                                <p class="mb-0" style="color: #8892b0; line-height: 1.6;">{{ model.description }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="tech-card h-100">
+                                <div class="tech-header text-info">
+                                    <i class="fas fa-network-wired me-2"></i>Kiến Trúc Mạng
+                                </div>
+                                <div class="p-4">
+                                    <div class="spec-item">
+                                        <span class="spec-label">Framework</span>
+                                        <span class="spec-value text-white">{{ model.type }}</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Backbone</span>
+                                        <span class="spec-value text-highlight">{{ model.backbone }}</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Neck (Cổ)</span>
+                                        <span class="spec-value">{{ model.neck }}</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Optimizer</span>
+                                        <span class="spec-value">{{ model.optimizer }}</span>
+                                    </div>
+                                    <div class="spec-item border-0">
+                                        <span class="spec-label">Input Size</span>
+                                        <span class="spec-value">1024x1024</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="tech-card h-100">
+                                <div class="tech-header text-warning">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Kết Quả Thực Nghiệm
+                                </div>
+                                <div class="p-4">
+                                    <div class="spec-item">
+                                        <span class="spec-label">Precision</span>
+                                        <span class="spec-value text-white">{{ model.metrics.precision }}</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Recall</span>
+                                        <span class="spec-value text-white">{{ model.metrics.recall }}</span>
+                                    </div>
+
+                                    <div class="row mt-3 g-2">
+                                        <div class="col-6">
+                                            <div class="p-3 rounded text-center h-100 d-flex flex-column justify-content-center"
+                                                 style="background: rgba(100, 255, 218, 0.1); border: 1px solid #64ffda;">
+                                                <small class="text-uppercase mb-1" style="color: #64ffda; font-size: 0.75rem;">Best mAP50</small>
+                                                <h3 class="fw-bold text-white mb-0">{{ model.metrics.mAP50 }}</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="p-3 rounded text-center h-100 d-flex flex-column justify-content-center"
+                                                 style="background: rgba(255, 206, 86, 0.1); border: 1px solid #ffce56;">
+                                                <small class="text-uppercase mb-1" style="color: #ffce56; font-size: 0.75rem;">Speed (CPU)</small>
+                                                <h5 class="fw-bold text-white mb-0">{{ model.metrics.speed }}</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-charts">
+                    <div class="tech-card p-4">
+                        <div class="tech-header mb-4 border-0 p-0 text-danger">
+                            <i class="fas fa-chart-area me-2"></i>Minh Chứng Thực Nghiệm
+                        </div>
+
+                        <div class="row mb-5">
+                            <div class="col-12">
+                                <div class="chart-card h-100 p-3">
+                                    <h6 class="text-start mb-3 text-highlight">1. Lịch sử Huấn luyện (Training History)</h6>
+                                    <div class="chart-content text-center">
+                                        <img src="{{ url_for('static', filename='images/' + model.charts.training_history) }}"
+                                             class="img-fluid rounded"
+                                             alt="Training History" style="max-height: 400px; object-fit: contain;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr style="border-color: #233554; margin: 40px 0;">
+
+                        <div class="row g-4">
+
+                            <div class="col-lg-6">
+                                <div class="chart-card h-100 d-flex flex-column p-3">
+                                    <h6 class="text-start mb-3 text-highlight">2. Precision-Recall Curve</h6>
+                                    <div class="chart-content flex-grow-1 d-flex align-items-center justify-content-center bg-darker rounded">
+                                        <img src="{{ url_for('static', filename='images/' + model.charts.pr_curve) }}"
+                                             class="img-fluid rounded"
+                                             alt="PR Curve">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="chart-card h-100 d-flex flex-column p-3">
+                                    <h6 class="text-start mb-3 text-highlight">3. Confusion Matrix</h6>
+                                    <div class="chart-content flex-grow-1 d-flex align-items-center justify-content-center bg-darker rounded">
+                                        <img src="{{ url_for('static', filename='images/' + model.charts.confusion_matrix) }}"
+                                             class="img-fluid rounded"
+                                             alt="Confusion Matrix">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-ai">
+                    <div class="tech-card p-0 overflow-hidden">
+                        <div class="tech-header bg-dark border-bottom border-secondary text-success">
+                            <i class="fas fa-robot me-2"></i>AI Analysis Report
+                        </div>
+                        <div class="p-4" style="background-color: #0d1117; font-family: 'Consolas', monospace; min-height: 400px;">
+                            <div style="color: #8b949e;" class="mb-3">
+                                <span class="text-success">system@oceaneye:~$</span> run analysis --target {{ model.slug }}<br>
+                                <span class="text-success">Loading model metrics...</span> [OK]<br>
+                                <span class="text-success">Comparing baseline...</span> [OK]<br>
+                                <span class="text-success">Generating insight...</span> [COMPLETE]<br>
+                            </div>
+
+                            <div class="p-3 rounded border border-secondary bg-dark mb-3">
+                                <span class="text-warning fw-bold">>>> REPORT SUMMARY:</span><br>
+                                <div style="color: #c9d1d9; line-height: 1.8; white-space: pre-line;" class="mt-2">
+                                    {{ model.ai_analysis }}
+                                </div>
+                            </div>
+
+                            <div class="text-muted">
+                                <span class="text-success">system@oceaneye:~$</span> <span class="blink">_</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .blink { animation: blinker 1s linear infinite; }
+    @keyframes blinker { 50% { opacity: 0; } }
+</style>
+{% endblock %}

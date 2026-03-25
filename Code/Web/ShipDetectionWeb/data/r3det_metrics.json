@@ -1,0 +1,8 @@
+{
+    "model": "R3Det",
+    "TP": 2412,
+    "FP": 593,
+    "FN": 774,
+    "IOU_THRESHOLD": 0.5,
+    "SCORE_THRESHOLD": 0.3
+}

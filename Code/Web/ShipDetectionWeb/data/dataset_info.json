@@ -1,0 +1,33 @@
+{
+  "name": "DOTA-v1.0 (Ship Category)",
+  "image_size": "1024 x 1024 (Pixels)",
+  "total_images": "4,639 Ảnh",
+  "format": "PNG (Lossless)",
+  "split": "Train: 70% | Val: 15% | Test: 15%",
+  "classes": ["Ship (Tàu bè)"],
+  "preprocessing": [
+    {
+      "step": "1",
+      "name": "Data Cleaning",
+      "desc": "Loại bỏ các ảnh lỗi, ảnh không chứa đối tượng tàu."
+    },
+    {
+      "step": "2",
+      "name": "Splitting",
+      "desc": "Chia tập dữ liệu theo tỉ lệ 7:1.5:1.5 để tối ưu hóa lượng ảnh Train."
+    },
+    {
+      "step": "3",
+      "name": "Rotation Augmentation",
+      "desc": "Tăng cường dữ liệu bằng phép xoay đa góc (90°, 180°, 270°) để mô hình học được tính bất biến với hướng quay."
+    },
+    {
+      "step": "4",
+      "name": "Normalization",
+      "desc": "Chuẩn hóa pixel về khoảng [0, 1] sử dụng Mean & Std của ImageNet."
+    }
+  ],
+  "ai_comment": "Bộ dữ liệu có sự mất cân bằng giữa tập Train (90%) và Val/Test (5%).\nĐiều này tốt cho việc mô hình học được nhiều đặc trưng, nhưng cần cẩn trọng khi đánh giá (Validate) để tránh Overfitting.\nKích thước 1024x1024 là lý tưởng để phát hiện các tàu nhỏ."
+}
+
+

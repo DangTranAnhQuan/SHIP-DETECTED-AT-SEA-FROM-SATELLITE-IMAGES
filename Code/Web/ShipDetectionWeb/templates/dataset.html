@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h2 class="page-header-title">QUẢN LÝ DỮ LIỆU VÀ TIỀN XỬ LÝ</h2>
+            <div class="header-line"></div>
+            <p class="page-header-desc mt-3">
+                <i class="fas fa-database me-2 text-highlight"></i>
+                Chi tiết bộ dữ liệu DOTA-v1.0 và quy trình chuẩn hóa đầu vào
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-3">
+            <div class="sidebar-menu sticky-top" style="top: 100px;">
+                <div class="list-group list-group-flush" id="list-tab" role="tablist">
+
+                    <a class="sidebar-item active" data-bs-toggle="list" href="#list-info" role="tab">
+                        <i class="fas fa-info-circle me-2"></i>Thông số kỹ thuật
+                    </a>
+
+                    <a class="sidebar-item" data-bs-toggle="list" href="#list-pipeline" role="tab">
+                        <i class="fas fa-cogs me-2"></i>Pipeline Xử lý
+                    </a>
+
+                    <a class="sidebar-item" data-bs-toggle="list" href="#list-visual" role="tab">
+                        <i class="fas fa-images me-2"></i>Minh họa Dữ liệu
+                    </a>
+
+                    <a class="sidebar-item" data-bs-toggle="list" href="#list-ai" role="tab">
+                        <i class="fas fa-brain me-2"></i>AI Insight
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="tab-content">
+
+                <div class="tab-pane fade show active" id="list-info">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="tech-card h-100">
+                                <div class="tech-header text-info">
+                                    <i class="fas fa-file-alt me-2"></i>Tổng Quan Dataset
+                                </div>
+                                <div class="p-4">
+                                    <div class="spec-item">
+                                        <span class="spec-label">Tên bộ dữ liệu</span>
+                                        <span class="spec-value text-white">{{ info.name }}</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Tổng số ảnh</span>
+                                        <span class="spec-value text-highlight">{{ info.total_images }}</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Kích thước gốc</span>
+                                        <span class="spec-value">{{ info.image_size }}</span>
+                                    </div>
+                                    <div class="spec-item border-0">
+                                        <span class="spec-label">Định dạng</span>
+                                        <span class="spec-value">{{ info.format }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="tech-card h-100">
+                                <div class="tech-header text-warning">
+                                    <i class="fas fa-layer-group me-2"></i>Cấu Trúc & Phân Lớp
+                                </div>
+                                <div class="p-4">
+                                    <div class="spec-item mb-3 border-bottom-0">
+                                        <span class="spec-label">Phân chia (Split)</span>
+                                        <span class="spec-value text-warning">{{ info.split }}</span>
+                                    </div>
+
+                                    <div class="mt-2">
+                                        <p class="spec-label mb-2">Danh sách lớp (Classes):</p>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            {% for cls in info.classes %}
+                                                <span class="badge border border-success text-success bg-transparent"
+                                                      style="font-family: 'Consolas'; font-weight: normal;">
+                                                    {{ cls }}
+                                                </span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tech-card mt-4 p-4">
+                        <div class="tech-header border-0 pb-0 mb-3">
+                            <i class="fas fa-chart-bar me-2 text-danger"></i>Phân Bố Dữ Liệu Thực Tế
+                        </div>
+                        <div class="chart-container">
+                            <img src="{{ url_for('static', filename='images/dataset_distribution.png') }}"
+                                 class="chart-img chart-img-wide"
+                                 alt="Biểu đồ phân bố dữ liệu">
+                        </div>
+                        <p class="mt-2 text-muted small fst-italic text-center">Hình 1: Biểu đồ thống kê số lượng ảnh giữa các tập Train, Validation và Test.</p>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="list-pipeline">
+                    <div class="tech-card p-4">
+                        <div class="tech-header mb-4 border-bottom border-secondary pb-3">
+                            <i class="fas fa-project-diagram me-2 text-info"></i>Quy Trình Tiền Xử Lý
+                        </div>
+                        <div class="timeline ps-3">
+                            {% for step in info.preprocessing %}
+                            <div class="d-flex mb-4 position-relative">
+                                {% if not loop.last %}
+                                <div style="position: absolute; left: 24px; top: 50px; bottom: -20px; width: 2px; background: #233554;"></div>
+                                {% endif %}
+
+                                <div class="flex-shrink-0 z-1">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center border border-success text-success fw-bold"
+                                         style="width: 50px; height: 50px; background: #0a192f;">
+                                        {{ step.step }}
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-4">
+                                    <h5 class="text-highlight mb-1">{{ step.name }}</h5>
+                                    <p class="text-muted mb-0" style="font-size: 0.95rem;">{{ step.desc }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="list-visual">
+                    <div class="tech-card p-4">
+                        <div class="tech-header mb-3 border-0">
+                            <i class="fas fa-images me-2 text-warning"></i>Minh Họa Data Augmentation
+                        </div>
+                        <div class="chart-container">
+                            <img src="{{ url_for('static', filename='images/preprocessing_demo.png') }}"
+                                 class="chart-img"
+                                 alt="Augmentation Demo">
+                        </div>
+                        <p class="mt-3 text-muted fst-italic text-center mb-0">Hình ảnh minh họa kỹ thuật xoay và cắt ảnh.</p>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="list-ai">
+                    <div class="tech-card p-0 overflow-hidden">
+                        <div class="tech-header bg-dark border-bottom border-secondary">
+                            <i class="fas fa-terminal me-2 text-success"></i>AI Data Analysis Report
+                        </div>
+                        <div class="p-4" style="background-color: #0d1117; font-family: 'Consolas', monospace; min-height: 400px;">
+                            <div style="color: #8b949e;" class="mb-3">
+                                <span class="text-success">system@oceaneye:~$</span> scan dataset --target DOTA-v1.0<br>
+                                <span class="text-success">Analyzing distribution...</span> [OK]<br>
+                                <span class="text-success">Checking balance...</span> [OK]<br>
+                                <br>
+                            </div>
+
+                            <div class="p-3 rounded border border-secondary bg-dark mb-3">
+                                <span class="text-warning fw-bold">>>> INSIGHT SUMMARY:</span><br>
+                                <div style="color: #c9d1d9; line-height: 1.8; white-space: pre-line;" class="mt-2">
+                                    {{ info.ai_comment }}
+                                </div>
+                            </div>
+
+                            <div class="text-muted">
+                                <span class="text-success">system@oceaneye:~$</span> <span class="blink">_</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .blink { animation: blinker 1s linear infinite; }
+    @keyframes blinker { 50% { opacity: 0; } }
+</style>
+{% endblock %}

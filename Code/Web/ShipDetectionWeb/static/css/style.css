@@ -1,0 +1,1132 @@
+/* ==========================================================================
+   1. SETUP FONT & COLORS (CẤU HÌNH CHUNG)
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Rajdhani:wght@500;600;700&family=Consolas&display=swap');
+
+:root {
+    --bg-dark: #0a192f;       /* Nền chính (Xanh đen thẫm) */
+    --bg-card: #112240;       /* Nền các thẻ Card (Sáng hơn nền chính) */
+    --text-main: #8892b0;     /* Chữ nội dung (Xám xanh) */
+    --text-bright: #ccd6f6;   /* Chữ tiêu đề (Trắng sáng) */
+    --text-highlight: #64ffda;/* Màu nhấn Neon (Xanh Cyan) */
+    --accent: #64ffda;        /* Alias cho màu nhấn */
+    --hover-bg: rgba(100, 255, 218, 0.1); /* Màu nền khi rê chuột */
+    --transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+/* ==========================================================================
+   2. GLOBAL LAYOUT (BỐ CỤC TOÀN TRANG)
+   ========================================================================== */
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column; /* Để đẩy footer xuống đáy */
+    overflow-x: hidden;     /* Chống thanh cuộn ngang thừa */
+}
+
+/* Wrapper chính để đẩy footer */
+.main-wrapper {
+    flex: 1 0 auto;
+    width: 100%;
+}
+
+/* Định dạng tiêu đề */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 1rem;
+}
+
+p, li, span, div {
+    color: var(--text-main);
+}
+
+a {
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+/* Class hỗ trợ text */
+.text-muted { color: #8892b0 !important; }
+.text-highlight { color: var(--text-highlight) !important; }
+.text-bright { color: var(--text-bright) !important; }
+
+/* ==========================================================================
+   3. NAVBAR (THANH ĐIỀU HƯỚNG)
+   ========================================================================== */
+.navbar {
+    background-color: rgba(10, 25, 47, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+    padding: 15px 0;
+}
+
+.navbar-brand {
+    font-family: 'Rajdhani', sans-serif;
+    color: var(--text-highlight) !important;
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.nav-link {
+    color: var(--text-bright) !important;
+    font-size: 0.95rem;
+    margin-left: 20px;
+    position: relative;
+}
+
+.nav-link:hover {
+    color: var(--text-highlight) !important;
+}
+
+/* Trạng thái Active của Menu */
+.nav-link.active {
+    color: var(--text-highlight) !important;
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--text-highlight);
+    box-shadow: 0 0 10px var(--text-highlight);
+}
+
+/* Nút Scan trên Navbar */
+.btn-scan {
+    border: 1px solid var(--text-highlight);
+    color: var(--text-highlight) !important;
+    background: transparent;
+    padding: 8px 20px;
+    border-radius: 4px;
+    font-family: 'Consolas', monospace;
+}
+
+.btn-scan:hover, .btn-scan.active {
+    background: rgba(100, 255, 218, 0.1);
+    box-shadow: 0 0 15px rgba(100, 255, 218, 0.2);
+}
+
+/* ==========================================================================
+   4. COMPONENTS: BUTTONS & CARDS
+   ========================================================================== */
+/* --- NÚT BẤM CÔNG NGHỆ (Sửa lỗi to hết trang) --- */
+.btn-tech {
+    background: transparent;
+    color: var(--text-highlight);
+    border: 1px solid var(--text-highlight);
+    padding: 10px 25px;
+    border-radius: 4px;
+    font-family: 'Consolas', monospace; /* Font code cho nút */
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    display: inline-block; /* Quan trọng: Giúp nút không bị giãn full width */
+    width: auto;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-tech:hover {
+    background: rgba(100, 255, 218, 0.1);
+    box-shadow: 0 0 15px rgba(100, 255, 218, 0.3);
+    color: var(--text-highlight);
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+/* --- CARD GIAO DIỆN (Generic) --- */
+.tech-card {
+    background-color: var(--bg-card);
+    border: 1px solid #233554;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px -15px rgba(2, 12, 27, 0.7);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    height: 100%;
+}
+
+.tech-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--text-highlight);
+}
+
+.tech-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #233554;
+    color: var(--text-bright);
+    font-weight: 600;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+}
+
+/* ==========================================================================
+   5. TABLES (SỬA LỖI MẤT CHỮ KHI HOVER)
+   ========================================================================== */
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--text-main);
+    border-color: #233554;
+    margin-bottom: 0;
+}
+
+.table th {
+    color: var(--text-highlight);
+    font-weight: 600;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--text-highlight);
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* QUAN TRỌNG: Fix lỗi chữ biến mất khi hover */
+.table-hover tbody tr:hover td,
+.table-hover tbody tr:hover th {
+    color: var(--text-highlight) !important; /* Chữ chuyển xanh sáng */
+    background-color: var(--hover-bg) !important; /* Nền tối mờ */
+}
+
+/* ==========================================================================
+   6. MODEL DETAIL PAGE (TRANG CHI TIẾT)
+   ========================================================================== */
+
+/* Menu bên trái (Gạch chân xanh) */
+.list-group-item {
+    background-color: transparent !important;
+    border: none !important;
+    color: var(--text-main) !important;
+    padding: 15px 20px;
+    font-weight: 500;
+    border-left: 3px solid transparent; /* Chuẩn bị cho hover */
+    transition: all 0.3s ease;
+}
+
+.list-group-item:hover {
+    background-color: var(--bg-card) !important;
+    color: var(--text-bright) !important;
+    padding-left: 25px;
+}
+
+/* Tab đang chọn */
+.list-group-item.active {
+    background-color: transparent !important;
+    color: var(--text-highlight) !important;
+    border-bottom: 2px solid var(--text-highlight) !important; /* Gạch chân dưới */
+    font-weight: 700;
+}
+
+/* Các dòng thông số kỹ thuật (Spec Item) */
+.spec-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(136, 146, 176, 0.1);
+}
+.spec-item:last-child { border-bottom: none; }
+
+.spec-label { color: var(--text-main); font-size: 0.9rem; }
+.spec-value {
+    color: var(--text-bright);
+    font-weight: 600;
+    font-family: 'Consolas', monospace;
+}
+
+/* Khung AI Terminal (Giao diện dòng lệnh) */
+.ai-terminal {
+    background-color: #020c1b; /* Đen hơn nền thường */
+    border: 1px solid #233554;
+    border-radius: 6px;
+    padding: 20px;
+    font-family: 'Consolas', monospace;
+    position: relative;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+}
+
+.ai-terminal::before {
+    content: " • AI_ANALYSIS_PROTOCOL";
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 0.7rem;
+    color: var(--text-highlight);
+    opacity: 0.7;
+}
+
+/* ==========================================================================
+   7. HERO SECTION (TRANG CHỦ)
+   ========================================================================== */
+.hero-section {
+    min-height: 90vh; /* Giảm một chút để footer không bị đẩy quá xa */
+    display: flex;
+    align-items: center;
+    background: linear-gradient(to bottom, rgba(10, 25, 47, 0.9), rgba(10, 25, 47, 1)),
+                url('../images/hero_bg.jpg') no-repeat center center/cover;
+    position: relative;
+}
+
+.hero-content h1 {
+    font-size: 3.5rem;
+    line-height: 1.2;
+}
+
+.text-gradient {
+    background: linear-gradient(90deg, #64ffda, #00b4db);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Nút Hero */
+.btn-hero-primary {
+    background-color: transparent;
+    border: 2px solid var(--text-highlight);
+    color: var(--text-highlight);
+    padding: 12px 30px;
+    font-weight: 600;
+    border-radius: 4px;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.btn-hero-primary:hover {
+    background-color: rgba(100, 255, 218, 0.1);
+    color: var(--text-highlight);
+    box-shadow: 0 0 20px rgba(100, 255, 218, 0.4);
+    transform: translateY(-3px);
+}
+
+/* ==========================================================================
+   8. FOOTER
+   ========================================================================== */
+footer {
+    flex-shrink: 0;
+    background-color: #020c1b;
+    color: var(--text-main);
+    padding: 20px 0;
+    margin-top: auto;
+    border-top: 1px solid #233554;
+    text-align: center;
+    font-size: 0.9rem;
+}
+/* ==========================================================================
+   9. DATASET PAGE STYLES (DÀNH RIÊNG CHO TRANG DATASET)
+   ========================================================================== */
+
+/* --- Header Trang Dataset --- */
+.page-header-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 2.5rem;
+    color: var(--text-bright);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.header-line {
+    width: 80px;
+    height: 4px;
+    background-color: var(--text-highlight);
+    margin: 0 auto;
+    border-radius: 2px;
+    box-shadow: 0 0 10px var(--text-highlight);
+}
+
+.page-header-desc {
+    font-size: 1.1rem;
+    color: var(--text-main);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* --- Sidebar Menu (Bên trái) --- */
+.sidebar-menu {
+    background-color: var(--bg-card);
+    border: 1px solid #233554;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 10px 30px -15px rgba(2, 12, 27, 0.7);
+}
+
+.sidebar-item {
+    display: block;
+    padding: 12px 20px;
+    margin-bottom: 8px;
+    color: var(--text-main);
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+}
+
+.sidebar-item:hover {
+    background-color: rgba(100, 255, 218, 0.05);
+    color: var(--text-bright);
+    padding-left: 25px; /* Hiệu ứng trượt nhẹ */
+}
+
+/* Trạng thái Active của Sidebar Dataset */
+.sidebar-item.active {
+    background: linear-gradient(90deg, rgba(100, 255, 218, 0.1), transparent);
+    color: var(--text-highlight);
+    border-left-color: var(--text-highlight);
+    font-weight: 600;
+}
+
+/* --- Content Panel (Khung nội dung chính) --- */
+.content-panel {
+    background-color: var(--bg-card); /* Nền xanh tối đồng bộ */
+    border: 1px solid #233554;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 10px 30px -15px rgba(2, 12, 27, 0.7);
+    min-height: 500px; /* Đảm bảo chiều cao tối thiểu */
+}
+
+.panel-title {
+    font-family: 'Rajdhani', sans-serif;
+    color: var(--text-bright);
+    font-weight: 700;
+    border-bottom: 1px solid #233554;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+}
+
+/* --- Custom Table (Bảng thông số Dataset) --- */
+/* Ghi đè toàn bộ style bảng trắng của Bootstrap */
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.custom-table th,
+.custom-table td {
+    background-color: transparent !important; /* Xóa nền trắng */
+    border-bottom: 1px solid #233554;
+    padding: 15px 10px;
+    vertical-align: middle;
+}
+
+.custom-table th {
+    color: var(--text-highlight); /* Màu tiêu đề cột (Xanh neon) */
+    width: 35%;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.custom-table td {
+    color: var(--text-bright); /* Màu giá trị (Trắng sáng) */
+    font-family: 'Consolas', monospace;
+}
+
+/* Hiệu ứng hover cho bảng dataset */
+.custom-table tr:hover td {
+    background-color: var(--hover-bg) !important;
+    color: var(--text-highlight) !important;
+}
+
+/* --- Timeline (Quy trình Pipeline) --- */
+.timeline .rounded-circle {
+    width: 50px;
+    height: 50px;
+    background-color: rgba(100, 255, 218, 0.1) !important; /* Nền tròn mờ */
+    border: 1px solid var(--text-highlight) !important;
+    color: var(--text-highlight) !important;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(100, 255, 218, 0.2);
+}
+
+.timeline h5 {
+    color: var(--text-bright);
+    margin-bottom: 5px;
+}
+
+.timeline p {
+    color: var(--text-main);
+}
+
+/* --- Badges (Thẻ Label) --- */
+.badge {
+    font-weight: 500;
+    padding: 6px 12px;
+    letter-spacing: 0.5px;
+}
+.badge.border-info { border-color: #64ffda !important; color: #64ffda !important; }
+
+.badge.border-success { border-color: #28a745 !important; color: #28a745 !important; }
+
+/* --- Hình ảnh minh họa --- */
+.content-panel img {
+    background-color: #000; /* Nền đen cho ảnh png trong suốt */
+    border: 1px solid #233554;
+    padding: 5px;
+    border-radius: 6px;
+}
+.container {
+    max-width: 1400px !important; /* Giới hạn độ rộng tối đa cho đẹp */
+}
+
+/* Sửa lỗi Sidebar Item bị màu xanh dương không mong muốn */
+.list-group-item, .sidebar-item {
+    color: var(--text-main) !important; /* Mặc định là màu xám trắng */
+}
+
+.list-group-item.active, .sidebar-item.active {
+    color: var(--text-highlight) !important; /* Chỉ xanh khi Active */
+    font-weight: 700;
+}
+
+.list-group-item i, .sidebar-item i {
+    color: inherit; /* Icon ăn theo màu chữ */
+}
+
+/* ==========================================================================
+   10. FIX LỖI HIỂN THỊ ẢNH CŨ (GIỮ ĐỂ TƯƠNG THÍCH NGƯỢC)
+   ========================================================================== */
+.chart-container {
+    width: 100%;
+    background-color: #020c1b;
+    border: 1px solid #233554;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+}
+
+.chart-img {
+    width: 100%;
+    height: auto;
+    max-height: 450px;
+    object-fit: contain;
+    display: block;
+}
+
+.chart-img-wide {
+    max-height: 500px;
+    object-fit: contain;
+}
+
+/* ==========================================================================
+   11. CHART CARDS & HOVER EFFECTS (MỚI - DÙNG CHO PHẦN BẠN YÊU CẦU)
+   ========================================================================== */
+
+/* A. Khung Card chứa biểu đồ */
+.chart-card {
+    background-color: var(--bg-card); /* Màu nền 112240 */
+    border: 1px solid #233554;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+
+    /* QUAN TRỌNG: Flexbox để căn chỉnh chiều cao */
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Đảm bảo nó chiếm hết chiều cao của cột Grid */
+
+    /* Hiệu ứng mượt mà khi di chuột */
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+/* B. Hiệu ứng Hover (Sờ vào nổi lên + Xanh) */
+.chart-card:hover {
+    transform: translateY(-8px); /* Nổi lên */
+    border-color: var(--text-highlight); /* Viền chuyển màu xanh Neon */
+    box-shadow: 0 15px 30px -10px rgba(100, 255, 218, 0.2); /* Đổ bóng xanh */
+    z-index: 10;
+}
+
+/* C. Vùng chứa ảnh bên trong Card (Chart Content) */
+.chart-content {
+    flex-grow: 1; /* Tự động lấp đầy khoảng trống còn lại (Fix lỗi height) */
+    background-color: #020c1b; /* Nền đen thẫm (Darker) để làm nổi biểu đồ */
+    border-radius: 8px;
+    margin-top: 10px;
+    padding: 10px;
+
+    /* Căn giữa ảnh tuyệt đối */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px; /* Đảm bảo khung không bị xẹp nếu ảnh lỗi */
+}
+
+/* D. Hình ảnh bên trong (Tự động co giãn) */
+.chart-content img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Giữ tỷ lệ ảnh, không bị méo */
+    transition: transform 0.3s ease;
+}
+
+/* E. Hiệu ứng phụ: Zoom nhẹ ảnh khi hover vào card */
+.chart-card:hover .chart-content img {
+    transform: scale(1.02);
+}
+/* --- Style cho Khung Thống Kê (Stats Box) --- */
+.stats-container {
+    background-color: rgba(2, 12, 27, 0.3); /* Nền tối hơn nền card một chút */
+    border: 1px solid rgba(136, 146, 176, 0.2); /* Viền mỏng tinh tế */
+    border-radius: 8px;
+    overflow: hidden; /* Bo góc cho các ô bên trong */
+}
+
+.stats-row {
+    display: flex;
+    width: 100%;
+}
+
+.stat-item {
+    flex: 1; /* Chia đều 50-50 */
+    padding: 10px 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Hiệu ứng khi hover vào từng ô số liệu */
+    transition: background 0.3s;
+}
+
+.stat-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Nhãn (Label): Precision, Recall... */
+.stat-label {
+    font-size: 0.75rem; /* Chữ nhỏ */
+    text-transform: uppercase; /* Viết hoa toàn bộ */
+    font-weight: 600;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Giá trị (Value): 89%, 0.75... */
+.stat-value {
+    font-family: 'Consolas', monospace; /* Font số lập trình */
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+/* Đường kẻ ngăn cách màu tối */
+.border-dark-subtle {
+    border-color: rgba(136, 146, 176, 0.2) !important;
+}
+
+/* Sửa lại icon cho nhỏ gọn hơn code cũ */
+.model-icon {
+    width: 45px;
+    height: 45px;
+    background-color: rgba(100, 255, 218, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: var(--text-highlight);
+    flex-shrink: 0;
+}
+/* ==========================================================================
+   STYLE MỚI CHO TRANG DEMO (DASHBOARD STYLE)
+   ========================================================================== */
+
+/* 1. Layout Dashboard */
+.demo-container {
+    padding: 2rem;
+    min-height: 85vh; /* Chiếm gần hết màn hình */
+}
+
+/* 2. Glass Panel (Khung kính mờ chung) */
+.glass-panel {
+    background: rgba(17, 34, 64, 0.7); /* Màu nền trong suốt */
+    backdrop-filter: blur(12px);         /* Hiệu ứng mờ đục phía sau */
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(100, 255, 218, 0.1); /* Viền sáng nhẹ */
+    border-radius: 16px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    height: 100%;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.glass-panel:hover {
+    border-color: rgba(100, 255, 218, 0.3);
+}
+
+/* 3. Control Sidebar (Cột bên trái) */
+.control-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+}
+
+.control-body {
+    padding: 1.5rem;
+}
+
+.form-label-tech {
+    color: var(--text-highlight);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* Custom Select & Input */
+.form-control-tech, .form-select-tech {
+    background-color: rgba(2, 12, 27, 0.6);
+    border: 1px solid rgba(136, 146, 176, 0.2);
+    color: var(--text-bright);
+    border-radius: 8px;
+    padding: 10px 15px;
+}
+
+.form-control-tech:focus, .form-select-tech:focus {
+    background-color: rgba(2, 12, 27, 0.8);
+    border-color: var(--text-highlight);
+    box-shadow: 0 0 10px rgba(100, 255, 218, 0.1);
+    color: var(--text-bright);
+}
+
+/* 4. Custom Range Slider (Thanh kéo) */
+input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    background: transparent;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: var(--text-highlight);
+    cursor: pointer;
+    margin-top: -6px;
+    box-shadow: 0 0 10px var(--text-highlight);
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    cursor: pointer;
+    background: rgba(136, 146, 176, 0.3);
+    border-radius: 2px;
+}
+
+/* 5. Custom Upload Box (Vùng thả file) */
+.upload-zone {
+    border: 2px dashed rgba(100, 255, 218, 0.3);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: rgba(2, 12, 27, 0.3);
+    position: relative;
+}
+
+.upload-zone:hover, .upload-zone.active {
+    border-color: var(--text-highlight);
+    background: rgba(100, 255, 218, 0.05);
+}
+
+.upload-icon {
+    font-size: 2rem;
+    color: var(--text-main);
+    margin-bottom: 10px;
+}
+
+/* 6. Viewport (Màn hình hiển thị ảnh) */
+.viewport-area {
+    background-color: rgba(2, 12, 27, 0.5); /* Đen thẫm hơn để nổi bật ảnh */
+    border-radius: 12px;
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.placeholder-content {
+    text-align: center;
+    color: rgba(136, 146, 176, 0.5);
+}
+
+.placeholder-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.result-image-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
+.result-image-container img {
+    max-width: 100%;
+    max-height: 70vh; /* Giới hạn chiều cao để không bị trôi trang */
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* Badge trạng thái */
+.status-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(10, 25, 47, 0.9);
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--text-highlight);
+    color: var(--text-highlight);
+    font-family: 'Consolas', monospace;
+    font-size: 0.85rem;
+    z-index: 10;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10, 25, 47, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    display: none; /* Mặc định ẩn */
+}
+
+.scan-line {
+    width: 100%;
+    height: 2px;
+    background: var(--text-highlight);
+    box-shadow: 0 0 20px var(--text-highlight);
+    animation: scan 2s infinite linear;
+}
+
+@keyframes scan {
+    0% { transform: translateY(-250px); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateY(250px); opacity: 0; }
+}
+/* ==========================================================================
+   STYLE CHO PREPROCESSING PANEL (MỚI)
+   ========================================================================== */
+
+/* 1. Khung chứa ảnh so sánh */
+.compare-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px; /* Giới hạn chiều rộng ảnh */
+    aspect-ratio: 1/1; /* Giữ khung vuông hoặc chỉnh theo ảnh */
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--text-highlight);
+    background: #000;
+}
+
+.compare-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    position: absolute;
+    top: 0; left: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Ảnh Overlay (Đã xử lý) - Mặc định hiện */
+.overlay-img {
+    opacity: 1;
+    z-index: 2;
+}
+
+/* Khi hover vào khung cha -> Ảnh Overlay mờ đi -> Lộ ảnh gốc */
+.compare-container:hover .overlay-img {
+    opacity: 0;
+}
+
+/* Nhãn 'Hover to Compare' */
+.compare-badge {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(10, 25, 47, 0.8);
+    color: var(--text-highlight);
+    border: 1px solid var(--text-highlight);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-family: 'Consolas', monospace;
+    font-size: 0.8rem;
+    z-index: 10;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+/* 2. Bảng Log bên phải */
+.process-log-panel {
+    background: rgba(2, 12, 27, 0.6);
+    overflow-y: auto;
+}
+
+.process-item {
+    display: flex;
+    margin-bottom: 25px;
+    position: relative;
+}
+
+/* Đường kẻ nối các bước */
+.process-item::before {
+    content: '';
+    position: absolute;
+    left: 19px; /* Canh giữa icon */
+    top: 40px;
+    bottom: -30px;
+    width: 2px;
+    background: rgba(136, 146, 176, 0.2);
+}
+.process-item:last-child::before { display: none; }
+
+.p-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(100, 255, 218, 0.1);
+    color: var(--text-highlight);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--text-highlight);
+    flex-shrink: 0;
+    z-index: 2;
+}
+
+.p-content {
+    margin-left: 15px;
+    flex-grow: 1;
+}
+
+.p-title {
+    color: var(--text-bright);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+}
+
+.p-desc {
+    color: var(--text-main);
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.p-params {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.param-tag {
+    background: rgba(255, 255, 255, 0.05);
+    color: #8892b0;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'Consolas', monospace;
+    font-size: 0.75rem;
+    border: 1px solid rgba(136, 146, 176, 0.2);
+}
+
+/* Scrollbar đẹp cho khung log */
+.process-log-panel::-webkit-scrollbar { width: 6px; }
+.process-log-panel::-webkit-scrollbar-track { background: #020c1b; }
+.process-log-panel::-webkit-scrollbar-thumb { background: #233554; border-radius: 3px; }
+
+/* --- RADAR & GLOBE CSS (KHÔNG DÙNG ẢNH) --- */
+/* 1. Khung Radar chính */
+.radar-container {
+    width: 350px; /* To hơn chút cho rõ */
+    height: 350px;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+
+    /* Viền ngoài phát sáng */
+    border: 2px solid rgba(100, 255, 218, 0.5);
+    box-shadow: 0 0 40px rgba(100, 255, 218, 0.15), inset 0 0 60px rgba(0,0,0,0.8);
+    background: #020c1b; /* Nền tối */
+}
+
+/* 2. Vòng tròn đồng tâm & Lưới (Range Rings) */
+.radar-grid {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    border-radius: 50%;
+
+    /* Vẽ 3 vòng tròn xanh mờ đè lên nhau */
+    background-image: repeating-radial-gradient(
+        transparent 0,
+        transparent 49px,
+        rgba(100, 255, 218, 0.15) 50px
+    );
+}
+
+/* 3. Trục chữ thập (Crosshair) */
+.radar-crosshair {
+    position: absolute;
+    width: 100%; height: 100%;
+}
+.radar-crosshair::before, .radar-crosshair::after {
+    content: ''; position: absolute; background: rgba(100, 255, 218, 0.2);
+}
+.radar-crosshair::before { width: 100%; height: 1px; top: 50%; left: 0; } /* Ngang */
+.radar-crosshair::after { width: 1px; height: 100%; top: 0; left: 50%; } /* Dọc */
+
+/* 4. Tia quét Radar */
+.radar-scan {
+    position: absolute;
+    width: 100%; height: 100%;
+    background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        rgba(100, 255, 218, 0.05) 60deg,
+        rgba(100, 255, 218, 0.6) 90deg,
+        transparent 91deg
+    );
+    border-radius: 50%;
+    animation: scan 4s linear infinite; /* Quét 1 vòng hết 4s */
+    z-index: 5;
+}
+
+/* 5. Con tàu (Marker) */
+.ship-marker {
+    position: absolute;
+    color: #ff5c5c; /* Màu đỏ tàu địch */
+    font-size: 14px;
+    z-index: 10;
+
+    /* Animation nhấp nháy đồng bộ với tia quét */
+    opacity: 0.3; /* Mặc định tối */
+    animation: scan-hit 4s infinite;
+    animation-delay: var(--d); /* Trễ theo vị trí để khớp tia quét */
+}
+
+/* Hiệu ứng bóng đổ cho tàu */
+.ship-marker i {
+    filter: drop-shadow(0 0 5px #ff5c5c);
+}
+
+/* Nhãn ID nhỏ bên cạnh tàu */
+.ship-label {
+    position: absolute;
+    left: 18px; top: -5px;
+    font-size: 10px;
+    font-family: 'Roboto Mono', monospace;
+    color: rgba(255, 255, 255, 0.7);
+    white-space: nowrap;
+}
+
+/* --- ANIMATIONS --- */
+
+/* Quay tia quét */
+@keyframes scan {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Hiệu ứng khi tia quét đi qua tàu (Sáng lên rồi tắt dần) */
+@keyframes scan-hit {
+    0% {
+        opacity: 1;
+        transform: scale(1.3);
+        text-shadow: 0 0 15px #ff5c5c;
+        color: #fff;
+    }
+    15% {
+        opacity: 1;
+        transform: scale(1.3);
+        color: #ff5c5c;
+    }
+    100% {
+        opacity: 0.3;
+        transform: scale(1);
+        text-shadow: none;
+    }
+}
+/* --- CYBER LOADER CSS --- */
+.cyber-loader {
+    width: 300px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1); /* Nền mờ */
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+    margin: 0 auto; /* Căn giữa */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.cyber-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Màu Gradient xanh ngọc chủ đạo */
+    background: linear-gradient(90deg, transparent, #64ffda, transparent);
+
+    /* Animation chạy qua chạy lại */
+    animation: cyber-scan 1.5s ease-in-out infinite;
+    transform: translateX(-100%);
+}
+
+@keyframes cyber-scan {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(100%); } /* Chạy sang phải */
+    100% { transform: translateX(-100%); } /* Về lại chỗ cũ (hoặc reset) */
+}
+
+/* Chớp nháy nhẹ cho text */
+.blink-text { animation: blink 2s infinite; }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+.ls-2 { letter-spacing: 2px; }

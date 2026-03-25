@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container-fluid demo-container">
+    <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+        <h4 class="text-white font-monospace mb-0"><i class="fas fa-satellite-dish me-2 text-danger animate-pulse"></i>LIVE SURVEILLANCE</h4>
+        <a href="/upload_video" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+            <i class="fas fa-cog me-2"></i>Config Stream
+        </a>
+    </div>
+
+    <div class="row h-100 g-3">
+
+        <div class="col-lg-8">
+            <div class="glass-panel p-0 d-flex flex-column align-items-center justify-content-center bg-black position-relative h-100"
+                 style="min-height: 600px; border: 1px solid #333;">
+
+                {% if ready %}
+                    <img src="{{ url_for('video_feed') }}" class="img-fluid w-100 h-100" style="object-fit: contain;">
+
+                    <div class="position-absolute top-0 start-0 m-3 d-flex gap-2">
+                        <span class="badge bg-danger animate-pulse">LIVE</span>
+                        <span class="badge bg-dark-glass border border-secondary">{{ current_model|upper }}</span>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted opacity-50">
+                        <i class="fas fa-video-slash fa-4x mb-3"></i>
+                        <h3>NO SIGNAL</h3>
+                        <p>Waiting for video source...</p>
+                        <button class="btn btn-tech mt-3" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                            Upload Video
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="d-flex flex-column gap-3 h-100">
+
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="glass-panel p-3 text-center border-left-success">
+                            <small class="text-muted text-uppercase ls-1">Detected Ships</small>
+                            <div class="display-4 fw-bold text-white mt-1" id="val_count">0</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="glass-panel p-3 text-center border-left-info">
+                            <small class="text-muted text-uppercase ls-1">Avg Confidence</small>
+                            <div class="display-4 fw-bold text-info mt-1"><span id="val_conf">0</span><span class="fs-5">%</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-3 flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-white mb-0"><i class="fas fa-chart-line me-2 text-highlight"></i>System Performance</h6>
+                        <span class="badge bg-dark border border-secondary text-warning" id="val_fps">0 FPS</span>
+                    </div>
+                    <div style="position: relative; height: 200px; width: 100%;">
+                        <canvas id="fpsChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-3 flex-grow-1 d-flex flex-column" style="max-height: 250px;">
+                    <h6 class="text-white mb-2"><i class="fas fa-terminal me-2 text-highlight"></i>Detection Log</h6>
+                    <div class="log-terminal flex-grow-1" id="logTerminal">
+                        <div class="text-muted small">System initialized...</div>
+                        <div class="text-muted small">Waiting for data stream...</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-panel border border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-white">Input Source Configuration</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/upload_video" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label-tech">Select Video File</label>
+                        <input type="file" name="file" class="form-control bg-dark text-white border-secondary" accept=".mp4,.avi">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label-tech">Select Model</label>
+                        <select name="model_select" class="form-select bg-dark text-white border-secondary">
+                            {% for key, m in models.items() %}
+                            <option value="{{ key }}">{{ m.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between">
+                            <label class="form-label-tech">Confidence Threshold</label>
+                            <span class="text-highlight fw-bold font-monospace" id="conf_val_display">0.4</span>
+                        </div>
+                        <input type="range" name="conf_threshold" class="form-range" min="0.1" max="0.9" step="0.05" value="0.4"
+                               oninput="document.getElementById('conf_val_display').innerText = this.value">
+                    </div>
+
+                    <button type="submit" class="btn btn-tech w-100">Start Surveillance</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // BƯỚC 1: Nhận biến từ Python và chuyển thành biến JavaScript
+    // Dòng này giúp IDE không báo lỗi đỏ nữa
+    const isReady = {{ 'true' if ready else 'false' }};
+
+    // BƯỚC 2: Kiểm tra điều kiện bằng JavaScript thuần
+    if (isReady) {
+        document.addEventListener("DOMContentLoaded", function() {
+
+            // 1. Cấu hình Chart.js
+            const ctx = document.getElementById('fpsChart').getContext('2d');
+            const fpsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array(20).fill(''), // 20 điểm dữ liệu
+                    datasets: [{
+                        label: 'FPS',
+                        data: Array(20).fill(0),
+                        borderColor: '#64ffda',
+                        backgroundColor: 'rgba(100, 255, 218, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#233554' }, ticks: { color: '#8892b0' } },
+                        x: { display: false }
+                    },
+                    animation: { duration: 0 } // Tắt animation để mượt hơn
+                }
+            });
+
+            // 2. Kết nối Server-Sent Events (SSE)
+            const eventSource = new EventSource("/video_data_feed");
+            const logTerminal = document.getElementById('logTerminal');
+
+            eventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+
+                if (!data.is_active) return; // Nếu video dừng thì không update
+
+                // Cập nhật số liệu
+                document.getElementById('val_count').innerText = data.ship_count;
+                document.getElementById('val_conf').innerText = data.avg_conf;
+                document.getElementById('val_fps').innerText = data.fps + " FPS";
+
+                // Cập nhật Chart
+                const chartData = fpsChart.data.datasets[0].data;
+                chartData.shift(); // Xóa điểm đầu
+                chartData.push(data.fps); // Thêm điểm mới
+                fpsChart.update();
+
+                // Cập nhật Log (Chỉ log khi có tàu)
+                if (data.ship_count > 0) {
+                    const time = new Date().toLocaleTimeString();
+                    const logLine = `<div class="text-success small mb-1">[${time}] Detected ${data.ship_count} object(s) - Conf: ${data.avg_conf}%</div>`;
+                    logTerminal.innerHTML += logLine;
+                    logTerminal.scrollTop = logTerminal.scrollHeight; // Auto scroll
+                }
+            };
+
+            eventSource.onerror = function() {
+                console.log("Stream ended or error.");
+                eventSource.close();
+            };
+        });
+    }
+</script>
+
+<style>
+    .bg-black { background-color: #000; }
+    .bg-dark-glass { background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); }
+    .border-left-success { border-left: 4px solid #64ffda; }
+    .border-left-info { border-left: 4px solid #48bfe3; }
+    .log-terminal { background: #0b1120; border-radius: 4px; padding: 10px; overflow-y: auto; font-family: 'Consolas', monospace; border: 1px solid #233554; }
+    .animate-pulse { animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+</style>
+{% endblock %}

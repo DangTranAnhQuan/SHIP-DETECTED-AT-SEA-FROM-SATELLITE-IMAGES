@@ -1,0 +1,398 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid demo-container">
+    <div class="row h-100 g-4">
+
+        <div class="col-lg-3">
+            <div class="glass-panel h-100 d-flex flex-column">
+
+                <div class="control-header border-bottom border-secondary">
+                    <h5 class="mb-3 text-white font-monospace">
+                        <i class="fas fa-sliders-h me-2 text-highlight"></i>BENCHMARK
+                    </h5>
+
+                    <form action="/compare" method="post" enctype="multipart/form-data" id="compareForm">
+                        <input type="hidden" id="previousFile" name="previous_file" value="{{ original_img if original_img else '' }}">
+
+                        <div class="mb-3">
+                            <label class="upload-zone w-100 py-3" for="fileInput">
+                                <div class="text-white small fw-bold" id="fileName">
+                                    {% if original_img %}
+                                        <i class="fas fa-check me-2"></i>{{ original_img }}
+                                    {% else %}
+                                        <i class="fas fa-upload me-2"></i>Choose Image
+                                    {% endif %}
+                                </div>
+                                <input type="file" id="fileInput" name="file" class="d-none" accept=".jpg,.jpeg,.png" onchange="handleCompareUpload(this)">
+                            </label>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <label class="form-label-tech small">Confidence</label>
+                                <span class="text-highlight fw-bold small" id="conf_display">{{ current_conf if current_conf else 0.3 }}</span>
+                            </div>
+                            <input type="range" name="conf_threshold" min="0.1" max="0.9" step="0.05"
+                                   value="{{ current_conf if current_conf else 0.3 }}"
+                                   oninput="document.getElementById('conf_display').innerText = this.value">
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="config-card p-2 text-center" onclick="toggleCheckbox('chk_mask')">
+                                    <small class="d-block text-muted mb-1">Land Mask</small>
+                                    <div class="form-check form-switch d-inline-block">
+                                        <input class="form-check-input" type="checkbox" id="chk_mask" name="use_land_mask" {% if current_mask %}checked{% endif %} onclick="event.stopPropagation()">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="config-card p-2 text-center" onclick="toggleCheckbox('chk_detail')">
+                                    <small class="d-block text-muted mb-1">Deep Detail</small>
+                                    <div class="form-check form-switch d-inline-block">
+                                        <input class="form-check-input" type="checkbox" id="chk_detail" name="use_advanced_proc" {% if current_advanced %}checked{% endif %} onclick="event.stopPropagation()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-tech w-100 fw-bold" onclick="validateAndRun(this)">
+                            <i class="fas fa-play me-2"></i>RUN BENCHMARK
+                        </button>
+                    </form>
+                </div>
+
+                <div id="statsPanel" class="control-body flex-grow-1 overflow-auto p-3 {% if not results %}d-none{% endif %}">
+                    {% if results %}
+                        <h6 class="text-highlight font-monospace mb-3"><i class="fas fa-chart-bar me-2"></i>METRICS</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-dark table-hover small" style="background: transparent;">
+                                <thead><tr class="text-secondary"><th>Model</th><th class="text-end">Ships</th><th class="text-end">Time</th><th class="text-end">Conf</th></tr></thead>
+                                <tbody>
+                                    {% for res in results %}
+                                    <tr style="border-left: 3px solid {{ res.color }};">
+                                        <td class="fw-bold">{{ res.name }}</td>
+                                        <td class="text-end text-white">{{ res.count }}</td>
+                                        <td class="text-end text-warning">{{ res.time }}s</td>
+                                        <td class="text-end text-info">{{ res.conf }}%</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="mt-4">
+                            <h6 class="text-highlight font-monospace mb-3"><i class="fas fa-layer-group me-2"></i>LAYERS CONTROL</h6>
+                            {% for res in results %}
+                            <div class="d-flex align-items-center justify-content-between mb-2 p-2 rounded" style="background: rgba(255,255,255,0.05); border-left: 4px solid {{ res.color }};">
+                                
+                                <div class="d-flex align-items-center gap-2 flex-grow-1" style="cursor: pointer;" onclick="toggleMasterWrapper('master-{{ res.id }}', '{{ res.id }}')">
+                                    <div class="form-check form-switch m-0">
+                                        <input class="form-check-input" type="checkbox" id="master-{{ res.id }}" checked onclick="event.stopPropagation(); toggleModelMaster(this, '{{ res.id }}')">
+                                    </div>
+                                    <span class="text-white small fw-bold">{{ res.name }}</span>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <div class="form-check form-switch" title="Toggle Boxes">
+                                        <label class="form-check-label text-muted small me-1"><i class="far fa-square"></i></label>
+                                        <input class="form-check-input" type="checkbox" id="chk-box-{{ res.id }}" checked onchange="toggleLayer(this, 'box-{{ res.id }}')">
+                                    </div>
+                                    <div class="form-check form-switch" title="Toggle Labels">
+                                        <label class="form-check-label text-muted small me-1"><i class="fas fa-tag"></i></label>
+                                        <input class="form-check-input" type="checkbox" id="chk-lbl-{{ res.id }}" checked onchange="toggleLayer(this, 'label-{{ res.id }}')">
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div id="emptyPanel" class="control-body d-flex flex-column justify-content-center align-items-center text-muted opacity-50 flex-grow-1 {% if results %}d-none{% endif %}">
+                    <i class="fas fa-balance-scale fa-3x mb-3"></i>
+                    <p class="small text-center px-3">Upload ảnh và chạy Benchmark để so sánh 5 model.</p>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="glass-panel p-0 d-flex flex-column position-relative h-100">
+
+                <div class="viewport-toolbar d-flex align-items-center px-3 py-2 border-bottom border-secondary" style="background: rgba(0,0,0,0.3);">
+                    <div class="me-auto d-flex gap-2">
+                        <button class="btn btn-sm btn-tab active" onclick="switchView(event, 'stack')"><i class="fas fa-layer-group me-1"></i>Multi-Model Stack</button>
+                        <button class="btn btn-sm btn-tab" onclick="switchView(event, 'input')"><i class="fas fa-image me-1"></i>Raw Input</button>
+                        <button class="btn btn-sm btn-tab" onclick="switchView(event, 'enhanced')"><i class="fas fa-magic me-1"></i>Preprocessing</button>
+                        <button class="btn btn-sm btn-tab" onclick="switchView(event, 'detail')"><i class="fas fa-microscope me-1"></i>Deep Detail</button>
+                        <button class="btn btn-sm btn-tab" onclick="switchView(event, 'mask')"><i class="fas fa-map me-1"></i>Land Mask</button>
+                    </div>
+                </div>
+
+                <div class="viewport-area flex-grow-1 position-relative bg-darker overflow-hidden d-flex justify-content-center align-items-center">
+
+                    <div id="loader" class="loading-overlay" style="display: none;">
+                        <div class="text-center position-relative" style="z-index: 10;">
+                            <div class="spinner-border text-highlight mb-4" style="width: 3rem; height: 3rem; border-width: 3px;" role="status"></div>
+                            <h4 class="text-white font-monospace ls-2">SYSTEM PROCESSING</h4>
+                            <p class="text-muted mt-2 small">Analyzing with neural networks...</p>
+                            <div class="cyber-loader mt-4"><div class="cyber-bar"></div></div>
+                        </div>
+                    </div>
+
+                    <div id="resultsViewContainer" class="w-100 h-100 {% if not results %}d-none{% endif %}">
+                        {% if results %}
+                            <div id="view_stack" class="view-section w-100 h-100 d-flex flex-column animate-fade">
+                                <div class="view-header w-100 d-flex justify-content-end p-2 position-absolute top-0 end-0" style="z-index: 100;">
+                                    <button class="btn btn-sm btn-dark border-secondary text-highlight" onclick="toggleFullscreen('view_stack')"><i class="fas fa-expand me-1"></i> Fullscreen</button>
+                                </div>
+                                <div class="flex-grow-1 d-flex justify-content-center align-items-center w-100 h-100 position-relative">
+                                    <div class="stack-container shadow-lg" id="stackArea">
+                                        <img src="{{ url_for('static', filename='uploads/' + original_img) }}" class="layer-base">
+                                        {% for res in results %}
+                                        <img src="{{ url_for('static', filename='uploads/' + res.img_box) }}" class="layer-overlay animate-fade" id="box-{{ res.id }}" style="z-index: {{ loop.index + 10 }};">
+                                        <img src="{{ url_for('static', filename='uploads/' + res.img_label) }}" class="layer-overlay animate-fade" id="label-{{ res.id }}" style="z-index: {{ loop.index + 50 }};">
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="view_input" class="view-section w-100 h-100 d-none flex-column animate-fade">
+                                <div class="view-header w-100 d-flex justify-content-end p-2 position-absolute top-0 end-0" style="z-index: 100;">
+                                    <button class="btn btn-sm btn-dark border-secondary text-highlight" onclick="toggleFullscreen('view_input')"><i class="fas fa-expand me-1"></i> Fullscreen</button>
+                                </div>
+                                <div class="flex-grow-1 d-flex justify-content-center align-items-center w-100 h-100">
+                                    <img src="{{ url_for('static', filename='uploads/' + original_img) }}" class="view-img">
+                                </div>
+                            </div>
+
+                            <div id="view_enhanced" class="view-section w-100 h-100 d-none animate-fade">
+                                <div class="row h-100 m-0 w-100">
+                                    <div class="col-8 p-0 d-flex flex-column justify-content-center align-items-center border-end border-secondary position-relative">
+                                        <div class="view-header w-100 d-flex justify-content-end p-2 position-absolute top-0 end-0" style="z-index: 100;">
+                                            <button class="btn btn-sm btn-dark border-secondary text-highlight" onclick="toggleFullscreen('view_enhanced')"><i class="fas fa-expand me-1"></i> Fullscreen</button>
+                                        </div>
+                                        <div class="compare-container shadow-lg" onmousemove="document.getElementById('c_msg').style.opacity=0" onmouseleave="document.getElementById('c_msg').style.opacity=1">
+                                            <img src="{{ url_for('static', filename='uploads/' + original_img) }}" class="compare-img">
+                                            <img src="{{ url_for('static', filename='uploads/' + enhanced_img) }}" class="compare-img overlay-img">
+                                            <div id="c_msg" class="compare-badge">HOVER TO COMPARE</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 p-4 bg-dark-soft overflow-auto">
+                                        <h6 class="text-highlight mb-4">PIPELINE LOG</h6>
+                                        <div class="process-timeline">
+                                            <div class="process-item"><div class="p-icon"><i class="fas fa-ghost"></i></div><div class="p-content"><div class="p-title">1. Gaussian Blur</div></div></div>
+                                            <div class="process-item"><div class="p-icon"><i class="fas fa-adjust"></i></div><div class="p-content"><div class="p-title">2. CLAHE</div></div></div>
+                                            <div class="process-item"><div class="p-icon"><i class="fas fa-sun"></i></div><div class="p-content"><div class="p-title">3. Gamma Correction</div></div></div>
+                                            <div class="process-item active"><div class="p-icon bg-success text-white"><i class="fas fa-check"></i></div><div class="p-content"><div class="p-title text-success">Done</div></div></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="view_detail" class="view-section w-100 h-100 d-none flex-column animate-fade">
+                                <div class="view-header w-100 d-flex justify-content-end p-2 position-absolute top-0 end-0" style="z-index: 100;">
+                                    <button class="btn btn-sm btn-dark border-secondary text-highlight" onclick="toggleFullscreen('view_detail')"><i class="fas fa-expand me-1"></i> Fullscreen</button>
+                                </div>
+                                <div class="flex-grow-1 d-flex justify-content-center align-items-center w-100 h-100">
+                                    {% if detail_img %}
+                                        <img src="{{ url_for('static', filename='uploads/' + detail_img) }}" class="view-img border border-secondary">
+                                    {% else %}
+                                        <div class="text-center text-muted"><i class="fas fa-ban fa-3x mb-3"></i><p>Not enabled</p></div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div id="view_mask" class="view-section w-100 h-100 d-none flex-column animate-fade">
+                                <div class="view-header w-100 d-flex justify-content-end p-2 position-absolute top-0 end-0" style="z-index: 100;">
+                                    <button class="btn btn-sm btn-dark border-secondary text-highlight" onclick="toggleFullscreen('view_mask')"><i class="fas fa-expand me-1"></i> Fullscreen</button>
+                                </div>
+                                <div class="flex-grow-1 d-flex justify-content-center align-items-center w-100 h-100">
+                                    {% if mask_img %}
+                                        <img src="{{ url_for('static', filename='uploads/' + mask_img) }}" class="view-img border border-secondary">
+                                    {% else %}
+                                        <div class="text-center text-muted"><i class="fas fa-eye-slash fa-3x mb-3"></i><p>No Mask</p></div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div id="waitingScreen" class="position-absolute top-0 start-0 w-100 h-100 {% if results %}d-none{% endif %}" style="z-index: 5; background: var(--bg-dark);">
+                        <div id="waitingPlaceholder" class="w-100 h-100 d-flex flex-column justify-content-center align-items-center text-muted opacity-50">
+                            <i class="fas fa-chess-board fa-4x mb-3"></i>
+                            <h3>Ready for Battle</h3>
+                            <p>Waiting for input...</p>
+                        </div>
+                        <img id="imgPreview" src="#" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); max-height: 90%; max-width: 90%; border-radius: 8px; z-index: 10; box-shadow: 0 0 50px rgba(0,0,0,0.5);">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- 1. HÀM UPLOAD VÀ PREVIEW ---
+    function handleCompareUpload(input) {
+        if (input.files && input.files[0]) {
+            document.getElementById('fileName').innerHTML = '<i class="fas fa-check me-2"></i>' + input.files[0].name;
+            document.getElementById('fileName').classList.add('text-highlight');
+
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var img = document.getElementById('imgPreview');
+                var placeholder = document.getElementById('waitingPlaceholder');
+                var waitingScreen = document.getElementById('waitingScreen');
+                var resultsView = document.getElementById('resultsViewContainer');
+                var statsPanel = document.getElementById('statsPanel');
+                var emptyPanel = document.getElementById('emptyPanel');
+
+                if(resultsView) resultsView.classList.add('d-none');
+                if(statsPanel) statsPanel.classList.add('d-none');
+                if(emptyPanel) emptyPanel.classList.add('d-none');
+                if(waitingScreen) waitingScreen.classList.remove('d-none');
+                if(placeholder) placeholder.style.display = 'none';
+
+                if(img) {
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                }
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // --- 2. LOGIC TOGGLE CONFIG SWITCH (Click Card) ---
+    function toggleCheckbox(elementId) {
+        const checkbox = document.getElementById(elementId);
+        checkbox.checked = !checkbox.checked;
+        checkbox.dispatchEvent(new Event('change'));
+    }
+
+    // --- 3. LOGIC LAYER CONTROL (MASTER & SUB SWITCHES) ---
+    function toggleLayer(checkbox, layerId) {
+        const layer = document.getElementById(layerId);
+        if (layer) layer.style.opacity = checkbox.checked ? '1' : '0';
+    }
+
+    // Logic khi bấm vào Master Switch của Model
+    function toggleModelMaster(masterBtn, modelId) {
+        const isChecked = masterBtn.checked;
+        const boxChk = document.getElementById('chk-box-' + modelId);
+        const lblChk = document.getElementById('chk-lbl-' + modelId);
+        
+        if (boxChk) {
+            boxChk.checked = isChecked;
+            toggleLayer(boxChk, 'box-' + modelId);
+        }
+        if (lblChk) {
+            lblChk.checked = isChecked;
+            toggleLayer(lblChk, 'label-' + modelId);
+        }
+    }
+
+    // Hàm bọc để click vào vùng tên model cũng kích hoạt switch
+    function toggleMasterWrapper(masterId, modelId) {
+        const masterBtn = document.getElementById(masterId);
+        masterBtn.checked = !masterBtn.checked;
+        toggleModelMaster(masterBtn, modelId);
+    }
+
+    // --- 4. CÁC HÀM UI KHÁC (SWITCH VIEW, FULLSCREEN, VALIDATE) ---
+    function switchView(event, mode) {
+        var resultsView = document.getElementById('resultsViewContainer');
+        if(resultsView && resultsView.classList.contains('d-none')) return;
+
+        document.querySelectorAll('.view-section').forEach(function(el) {
+            el.classList.add('d-none');
+        });
+        const target = document.getElementById('view_' + mode);
+        if (target) {
+            target.classList.remove('d-none');
+            if(mode === 'enhanced') target.classList.add('d-block');
+            else target.classList.add('d-flex');
+        }
+        document.querySelectorAll('.btn-tab').forEach(function(btn) {
+            btn.classList.remove('active');
+        });
+        if(event) event.currentTarget.classList.add('active');
+    }
+
+    var fsPlaceholder = document.createElement('div');
+    function toggleFullscreen(elementId) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        const btn = el.querySelector('button');
+        const icon = btn ? btn.querySelector('i') : null;
+
+        if (!el.classList.contains('fullscreen-mode')) {
+            el.parentNode.insertBefore(fsPlaceholder, el);
+            document.body.appendChild(el);
+            el.classList.add('fullscreen-mode');
+            if(icon) { icon.classList.remove('fa-expand'); icon.classList.add('fa-compress'); }
+        } else {
+            if(fsPlaceholder.parentNode) { fsPlaceholder.parentNode.insertBefore(el, fsPlaceholder); fsPlaceholder.remove(); }
+            el.classList.remove('fullscreen-mode');
+            if(icon) { icon.classList.remove('fa-compress'); icon.classList.add('fa-expand'); }
+        }
+    }
+
+    function validateAndRun(btn) {
+        const fileInput = document.getElementById('fileInput');
+        const prevFile = document.getElementById('previousFile').value;
+
+        if (fileInput.files.length === 0 && prevFile === "") {
+            alert("⚠️ Vui lòng chọn ảnh trước khi chạy!");
+            return;
+        }
+
+        document.getElementById('loader').style.display = 'flex';
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>PROCESSING...';
+        document.getElementById('compareForm').submit();
+    }
+</script>
+
+<style>
+    .config-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(136, 146, 176, 0.1); border-radius: 6px; cursor: pointer; transition: all 0.2s; user-select: none; }
+    .config-card:hover { border-color: var(--text-highlight); background: rgba(100, 255, 218, 0.05); }
+    .config-card:active { transform: scale(0.98); }
+
+    .stack-container { position: relative; width: 95%; height: 95%; display: flex; align-items: center; justify-content: center; }
+    .layer-base { max-width: 100%; max-height: 100%; object-fit: contain; position: absolute; z-index: 1; }
+    .layer-overlay { max-width: 100%; max-height: 100%; object-fit: contain; position: absolute; transition: opacity 0.3s ease; pointer-events: none; }
+
+    .btn-tab { color: #8892b0; border: 1px solid transparent; border-radius: 20px; padding: 5px 15px; font-size: 0.85rem; transition: all 0.3s; }
+    .btn-tab:hover { background: rgba(100, 255, 218, 0.1); color: var(--text-highlight); }
+    .btn-tab.active { background: rgba(100, 255, 218, 0.1); border-color: var(--text-highlight); color: var(--text-highlight); box-shadow: 0 0 10px rgba(100, 255, 218, 0.1); }
+
+    .view-img { max-width: 95%; max-height: 90vh; object-fit: contain; border-radius: 4px; }
+    .view-header { background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); }
+
+    .compare-container { width: 80%; max-width: 600px; aspect-ratio: 1/1; position: relative; background: #000; border: 1px solid #233554; border-radius: 8px; overflow: hidden; }
+    .compare-img { width: 100%; height: 100%; object-fit: contain; position: absolute; top:0; left:0; transition: opacity 0.3s ease; }
+    .overlay-img { opacity: 1; z-index: 2; }
+    .compare-container:hover .overlay-img { opacity: 0; }
+    .compare-badge { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(10, 25, 47, 0.8); color: var(--text-highlight); border: 1px solid var(--text-highlight); padding: 5px 15px; border-radius: 20px; font-family: 'Consolas', monospace; font-size: 0.8rem; z-index: 10; transition: opacity 0.3s; pointer-events: none; }
+
+    .fullscreen-mode { position: fixed !important; top: 0; left: 0; width: 100vw !important; height: 100vh !important; background-color: #0b1120 !important; z-index: 2147483647 !important; padding: 0 !important; margin: 0 !important; display: flex !important; justify-content: center !important; align-items: center !important; }
+    .fullscreen-mode .layer-base, .fullscreen-mode .layer-overlay, .fullscreen-mode .view-img { width: auto !important; height: auto !important; max-width: 95% !important; max-height: 95% !important; }
+    .fullscreen-mode .row { width: 100%; height: 100%; margin: 0; }
+    .fullscreen-mode .compare-container { width: 100%; height: 100%; max-width: none; aspect-ratio: auto; border: none; }
+    .fullscreen-mode .col-8 { flex: 0 0 75%; max-width: 75%; }
+    .fullscreen-mode .col-4 { flex: 0 0 25%; max-width: 25%; }
+
+    .process-item { display: flex; margin-bottom: 25px; position: relative; }
+    .process-item::before { content: ''; position: absolute; left: 19px; top: 40px; bottom: -30px; width: 2px; background: rgba(136, 146, 176, 0.2); }
+    .process-item:last-child::before { display: none; }
+    .p-icon { width: 40px; height: 40px; border-radius: 50%; background: rgba(100, 255, 218, 0.1); color: var(--text-highlight); display: flex; align-items: center; justify-content: center; border: 1px solid var(--text-highlight); flex-shrink: 0; z-index: 2; }
+    .p-content { margin-left: 15px; flex-grow: 1; }
+    .p-title { color: var(--text-bright); font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; }
+
+    .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+</style>
+{% endblock %}

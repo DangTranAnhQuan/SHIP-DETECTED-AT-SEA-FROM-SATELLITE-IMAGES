@@ -1,0 +1,139 @@
+{
+  "r3det": {
+    "id": "r3det",
+    "type": "mmrotate",
+    "name": "R3Det (Refined Rotated RetinaNet)",
+    "full_name": "Refined Rotated RetinaNet",
+    "config_file": "models/r3det/config.py",
+    "weights_file": "models/r3det/weights.pth",
+    "backbone": "ResNet-50 (ImageNet Pretrained)",
+    "neck": "FPN (Feature Pyramid Network)",
+    "epochs": 12,
+    "batch_size": "8 (Training) / 2 (Inference)",
+    "optimizer": "SGD (lr=0.005)",
+    "training_time": "~4.5 giờ",
+    "metrics": {
+      "mAP50": "80.0%",
+      "mAP50-95": "N/A (Chưa đo)",
+      "precision": "80.3%",
+      "recall": "75.7%",
+      "speed": "420 ms/img "
+    },
+    "charts": {
+      "training_history": "r3det_training_history.png",
+      "pr_curve": "r3det_pr_curve.png",
+      "confusion_matrix": "r3det_confusion_matrix.png"
+    },
+    "description": "Mô hình One-Stage (một giai đoạn) sử dụng Feature Refinement Module (FRM) để khắc phục lỗi lệch hướng của hộp xoay. Cân bằng tốt giữa tốc độ và độ chính xác.",
+    "ai_analysis": "Đạt độ chính xác (Precision) tốt ở mức 80.3%, cho thấy mô hình ít báo động giả. Tuy nhiên, Recall (75.7%) thấp hơn so với Oriented R-CNN và YOLO, đồng nghĩa với việc có thể bỏ sót một số mục tiêu khó. Tốc độ 420ms ở mức trung bình, phù hợp làm mô hình baseline (cơ sở) để so sánh hiệu quả của các thuật toán xoay."
+  },
+  "oriented_rcnn": {
+    "id": "oriented_rcnn",
+    "type": "mmrotate",
+    "name": "Oriented R-CNN",
+    "full_name": "Oriented Region-based CNN",
+    "config_file": "models/oriented_rcnn/config.py",
+    "weights_file": "models/oriented_rcnn/weights.pth",
+    "backbone": "ResNet-50",
+    "neck": "FPN",
+    "epochs": 18,
+    "batch_size": "16",
+    "optimizer": "SGD (lr=0.02)",
+    "training_time": "~5 giờ",
+    "metrics": {
+      "mAP50": "86.3%",
+      "mAP50-95": "N/A (Chưa đo)",
+      "precision": "78.0%",
+      "recall": "87%",
+      "speed": "490 ms/img "
+    },
+    "charts": {
+      "training_history": "oriented_rcnn_training_history.png",
+      "pr_curve": "oriented_rcnn_pr_curve.png",
+      "confusion_matrix": "oriented_rcnn_confusion_matrix.png"
+    },
+    "description": "Mô hình Two-Stage (hai giai đoạn) tiên tiến. Sử dụng Oriented RPN để đề xuất vùng xoay chất lượng cao, giúp đạt độ chính xác vượt trội trên các đối tượng dày đặc.",
+    "ai_analysis": "Điểm sáng lớn nhất là chỉ số Recall đạt 87% (cao nhất nhì nhóm), chứng tỏ khả năng vét cạn đối tượng cực tốt, rất hiếm khi bỏ sót tàu. Tuy nhiên, đánh đổi lại là tốc độ xử lý khá chậm (490ms/ảnh), chỉ phù hợp cho các hệ thống phân tích sâu (offline) hoặc giám sát không yêu cầu thời gian thực khắt khe."
+  },
+  "yolo": {
+    "id": "yolo",
+    "type": "yolo",
+    "name": "YOLOv8-Obb",
+    "full_name": "You Only Look Once v8 (Oriented)",
+    "config_file": "yolo_local.yaml",
+    "weights_file": "models/yolo/best.pt",
+    "backbone": "CSPDarknet53",
+    "neck": "PANet (Path Aggregation)",
+    "epochs": 50,
+    "batch_size": "16",
+    "optimizer": "AdamW",
+    "training_time": "3.5 giờ",
+    "metrics": {
+      "mAP50": "91.9%",
+      "mAP50-95": "75.5%",
+      "precision": "85.0%",
+      "recall": "84.9%",
+      "speed": "~100 ms/img "
+    },
+    "charts": {
+      "training_history": "yolov8_training_history.png",
+      "pr_curve": "yolov8_pr_curve.png",
+      "confusion_matrix": "yolov8_confusion_matrix.png"
+    },
+    "description": "Phiên bản mới nhất của dòng YOLO hỗ trợ xoay (OBB). Thiết kế Anchor-free giúp tối ưu hóa tốc độ suy luận mà vẫn giữ được độ chính xác đáng kinh ngạc.",
+    "ai_analysis": "Mô hình tối ưu nhất (SOTA) trong thử nghiệm này. Sở hữu mAP kỷ lục (91.9%) cùng sự cân bằng hoàn hảo giữa Precision và Recall (~85%). Đặc biệt, tốc độ xử lý siêu tốc (~100ms/ảnh) nhanh gấp 4-5 lần các mô hình khác, biến đây thành lựa chọn số 1 cho các ứng dụng triển khai thực tế (Real-time Deployment)."
+  },
+  "faster_rcnn": {
+    "id": "faster_rcnn",
+    "type": "torchvision",
+    "name": "Faster R-CNN (HBB)",
+    "full_name": "Faster R-CNN (Horizontal Box)",
+    "weights_file": "models/faster_rcnn/weights.pth",
+    "config_file": "",
+    "backbone": "ResNet-50",
+    "neck": "FPN",
+    "epochs": 15,
+    "metrics": {
+      "mAP50": "85.2%",
+      "mAP50-95": "N/A",
+      "precision": "80.4%",
+      "recall": "86.55%",
+      "speed": "200 ms/img"
+    },
+    "charts": {
+      "training_history": "faster_rcnn_training_history.png",
+      "pr_curve": "faster_rcnn_pr_curve.png",
+      "confusion_matrix": "faster_rcnn_confusion_matrix.png"
+    },
+    "description": "Mô hình Faster R-CNN huấn luyện với thư viện Torchvision. Sử dụng hộp ngang (HBB) để phát hiện tàu. Phù hợp cho các tàu nằm tách rời, không bị nghiêng quá nhiều.",
+    "ai_analysis": "Sở hữu độ ổn định cao và Recall rất ấn tượng (86.55%). Tuy nhiên, do sử dụng hộp ngang (HBB), mô hình sẽ bao phủ nhiều vùng nền (nước) thừa đối với các con tàu nằm chéo, dẫn đến IoU thấp hơn thực tế. Đây là mô hình đối chứng tốt để thấy rõ lợi ích của việc sử dụng OBB (hộp xoay) trong bài toán này."
+  },
+  "mask_rcnn": {
+    "id": "mask_rcnn",
+    "type": "mask_rcnn_torch",
+    "name": "Mask R-CNN (Instance Seg)",
+    "full_name": "Mask Region-based CNN",
+    "weights_file": "models/mask_rcnn/weights.pth",
+    "config_file": "",
+    "backbone": "ResNet-50-FPN",
+    "neck": "FPN",
+    "epochs": 100,
+    "metrics": {
+      "mAP50": "~82.5%",
+      "mAP50-95": "65.2%",
+      "precision": "80.0%",
+      "recall": "78.0%",
+      "speed": "~300 ms/img"
+    },
+    "charts": {
+      "training_history": "mask_rcnn_training_history.png",
+      "pr_curve": "mask_rcnn_pr_curve.png",
+      "confusion_matrix": "mask_rcnn_confusion_matrix.png"
+    },
+    "description": "Mô hình phân đoạn đối tượng (Instance Segmentation) mạnh mẽ. Ngoài việc vẽ hộp bao (HBB), nó còn tạo ra một lớp mặt nạ (mask) ôm sát hình dáng con tàu.",
+    "ai_analysis": "Cung cấp thông tin giàu ý nghĩa nhất (hình dạng pixel của tàu) thay vì chỉ là tọa độ hộp. Mặc dù tốc độ (300ms) và mAP thấp hơn YOLO, Mask R-CNN lại cực kỳ giá trị trong các bài toán cần đo đạc diện tích thực hoặc phân loại hình thái tàu chi tiết mà các mô hình detection thông thường không làm được."
+  }
+}
+
+
+

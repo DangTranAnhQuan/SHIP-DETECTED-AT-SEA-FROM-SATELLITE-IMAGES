@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid demo-container">
+    <div class="row h-100 g-4">
+
+        <div class="col-lg-3">
+             <div class="glass-panel h-100 d-flex flex-column">
+                <div class="control-header">
+                    <h5 class="mb-0 text-white font-monospace">
+                        <i class="fas fa-sliders-h me-2 text-highlight"></i>CONFIGURATION
+                    </h5>
+                </div>
+                <div class="control-body flex-grow-1">
+                    <form method="post" enctype="multipart/form-data" id="scanForm">
+                        <div class="mb-4">
+                            <label class="form-label-tech">AI Model Engine</label>
+                            <select name="model_select" class="form-select-tech w-100">
+                                {% for key, m in models.items() %}
+                                <option value="{{ key }}" {% if selected_model == key %}selected{% endif %}>{{ m.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between">
+                                <label class="form-label-tech">Confidence</label>
+                                <span class="text-highlight fw-bold" id="conf_display">{{ current_conf if current_conf else 0.4 }}</span>
+                            </div>
+                            <input type="range" name="conf_threshold" min="0.1" max="0.9" step="0.05"
+                                   value="{{ current_conf if current_conf else 0.4 }}"
+                                   oninput="document.getElementById('conf_display').innerText = this.value">
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="config-card d-flex align-items-center justify-content-between mb-3">
+                                <div>
+                                    <div class="text-white fw-bold">Land Masking</div>
+                                    <small class="text-muted">Chỉ vùng biển</small>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="use_land_mask" {% if current_mask %}checked{% endif %}>
+                                </div>
+                            </div>
+
+                            <div class="config-card d-flex align-items-center justify-content-between">
+                                <div>
+                                    <div class="text-highlight fw-bold"><i class="fas fa-microscope me-2"></i>Deep Detail</div>
+                                    <small class="text-white-50" style="font-size: 0.75rem;">Tàu nhỏ / Sát bờ</small>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="use_advanced_proc" {% if current_advanced %}checked{% endif %}>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="upload-zone w-100" for="fileInput">
+                                <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                                <div class="text-white fw-bold" id="fileName">Upload Image</div>
+                                <input type="file" id="fileInput" name="file" class="d-none" accept=".jpg,.jpeg,.png" required onchange="handleNewUpload(this)">
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-tech w-100 py-3 fw-bold" onclick="showLoader()">START PROCESS</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="glass-panel h-100 p-0 d-flex flex-column position-relative">
+
+                <div class="viewport-toolbar d-flex align-items-center px-3 py-2 border-bottom border-secondary" style="background: rgba(0,0,0,0.3);">
+                    <div class="me-auto d-flex gap-2">
+                        <button class="btn btn-sm btn-tab active" onclick="switchView(event, 'result')">
+                            <i class="fas fa-check-circle me-1"></i>Final Result
+                        </button>
+                        <button class="btn btn-sm btn-tab" onclick="switchView(event, 'input')">
+                            <i class="fas fa-image me-1"></i>Raw Input
+                        </button>
+                        <button class="btn btn-sm btn-tab" onclick="switchView(event, 'enhanced')">
+                            <i class="fas fa-magic me-1"></i>Preprocessing
+                        </button>
+                        <button class="btn btn-sm btn-tab" onclick="switchView(event, 'detail')">
+                            <i class="fas fa-microscope me-1"></i>Deep Detail
+                        </button>
+                        <button class="btn btn-sm btn-tab" onclick="switchView(event, 'mask')">
+                            <i class="fas fa-map me-1"></i>Land Mask
+                        </button>
+                    </div>
+
+                    <a href="/compare" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-columns me-1"></i>Compare Mode
+                    </a>
+                </div>
+
+                <div class="viewport-area flex-grow-1 position-relative bg-darker overflow-hidden">
+
+                    <div class="loading-overlay" id="loader">
+                        <div class="scan-line"></div>
+                        <h4 class="text-highlight mt-4">AI PROCESSING...</h4>
+                    </div>
+
+                    <div id="resultsContainer" class="w-100 h-100">
+                        {% if result_img %}
+                            <div id="view_result" class="view-section w-100 h-100 d-flex flex-column animate-fade">
+                                <div class="view-header w-100 d-flex justify-content-end p-2 position-absolute top-0 end-0" style="z-index: 10;">
+                                    <button class="btn btn-sm btn-dark border-secondary text-highlight" onclick="toggleFullscreen('view_result')"><i class="fas fa-expand me-1"></i>Fullscreen</button>
+                                </div>
+                                <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center h-100 w-100">
+                                    <img src="{{ url_for('static', filename='uploads/' + result_img) }}" class="view-img main-shadow">
+                                    <div class="mt-3 text-highlight font-monospace bg-dark px-3 py-1 rounded border border-secondary status-bar">
+                                        <i class="fas fa-terminal me-2"></i>{{ status }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="view_input" class="view-section w-100 h-100 d-none flex-column animate-fade">
+                                <div class="view-header w-100 d-flex justify-content-end p-2 position-absolute top-0 end-0" style="z-index: 10;">
+                                    <button class="btn btn-sm btn-dark border-secondary text-highlight" onclick="toggleFullscreen('view_input')"><i class="fas fa-expand me-1"></i>Fullscreen</button>
+                                </div>
+                                <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center h-100 w-100">
+                                    <img src="{{ url_for('static', filename='uploads/' + original_img) }}" class="view-img">
+                                </div>
+                            </div>
+
+                            <div id="view_enhanced" class="view-section w-100 h-100 d-none animate-fade">
+                                <div class="row h-100 m-0 w-100">
+                                    <div class="col-lg-8 p-0 d-flex flex-column align-items-center justify-content-center" style="border-right: 1px solid rgba(136,146,176,0.1);">
+                                        <div class="compare-container shadow-lg"
+                                             onmousemove="document.getElementById('compare_msg').style.opacity=0"
+                                             onmouseleave="document.getElementById('compare_msg').style.opacity=1">
+                                            <img src="{{ url_for('static', filename='uploads/' + original_img) }}" class="compare-img">
+                                            <img src="{{ url_for('static', filename='uploads/' + enhanced_img) }}" class="compare-img overlay-img">
+                                            <div id="compare_msg" class="compare-badge">HOVER TO COMPARE</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 p-0 bg-dark-soft">
+                                        <div class="process-log-panel h-100 p-4">
+                                            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-2">
+                                                <h6 class="text-highlight font-monospace mb-0"><i class="fas fa-cogs me-2"></i>PIPELINE</h6>
+                                                <button class="btn btn-sm btn-outline-highlight" onclick="toggleFullscreen('view_enhanced')"><i class="fas fa-expand me-1"></i>Fullscreen</button>
+                                            </div>
+
+                                            <div class="process-timeline">
+                                                <div class="process-item">
+                                                    <div class="p-icon"><i class="fas fa-ghost"></i></div>
+                                                    <div class="p-content">
+                                                        <div class="p-title">1. Gaussian Blur</div>
+                                                        <div class="p-desc">Noise Reduction Algorithm</div>
+                                                        <div class="p-params"><span class="param-tag">Kernel: 5x5</span></div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="process-item">
+                                                    <div class="p-icon"><i class="fas fa-adjust"></i></div>
+                                                    <div class="p-content">
+                                                        <div class="p-title">2. CLAHE</div>
+                                                        <div class="p-desc">Adaptive Histogram Eq.</div>
+                                                        <div class="p-params"><span class="param-tag">Clip: 2.0</span> <span class="param-tag">Grid: 8x8</span></div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="process-item">
+                                                    <div class="p-icon"><i class="fas fa-sun"></i></div>
+                                                    <div class="p-content">
+                                                        <div class="p-title">3. Gamma Correction</div>
+                                                        <div class="p-desc">Brightness Adjustment</div>
+                                                        <div class="p-params"><span class="param-tag">Gamma: 1.2</span></div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="process-item active">
+                                                    <div class="p-icon bg-success text-white"><i class="fas fa-check"></i></div>
+                                                    <div class="p-content"><div class="p-title text-success">Preprocessing Complete</div></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="view_detail" class="view-section w-100 h-100 d-none flex-column animate-fade">
+                                <div class="view-header w-100 d-flex justify-content-end p-2 position-absolute top-0 end-0" style="z-index: 10;">
+                                    <button class="btn btn-sm btn-dark border-secondary text-highlight" onclick="toggleFullscreen('view_detail')"><i class="fas fa-expand me-1"></i>Fullscreen</button>
+                                </div>
+                                <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center h-100 w-100">
+                                    {% if detail_img %}
+                                        <img src="{{ url_for('static', filename='uploads/' + detail_img) }}" class="view-img border border-secondary">
+                                        <p class="mt-3 text-highlight font-monospace bg-dark px-3 py-1 rounded border border-secondary status-bar">
+                                            <i class="fas fa-layer-group me-2"></i>Top-Hat Feature Extraction Layer
+                                        </p>
+                                    {% else %}
+                                        <div class="text-center text-muted">
+                                            <i class="fas fa-ban fa-3x mb-3"></i>
+                                            <p>Chế độ Deep Detail chưa được kích hoạt</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div id="view_mask" class="view-section w-100 h-100 d-none flex-column animate-fade">
+                                <div class="view-header w-100 d-flex justify-content-end p-2 position-absolute top-0 end-0" style="z-index: 10;">
+                                    <button class="btn btn-sm btn-dark border-secondary text-highlight" onclick="toggleFullscreen('view_mask')"><i class="fas fa-expand me-1"></i>Fullscreen</button>
+                                </div>
+                                <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center h-100 w-100">
+                                    {% if mask_img %}
+                                        <img src="{{ url_for('static', filename='uploads/' + mask_img) }}" class="view-img border border-secondary">
+                                        <p class="mt-2 text-muted status-bar">Trắng = Biển (Detect) | Đen = Đất (Ignore)</p>
+                                    {% else %}
+                                        <div class="text-center text-muted"><i class="fas fa-eye-slash fa-3x mb-3"></i><p>Không tìm thấy Mask</p></div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div id="waitingScreen" class="position-absolute top-0 start-0 w-100 h-100 {% if result_img %}d-none{% endif %}" style="z-index: 5; background: var(--bg-dark);">
+                        <div id="waitingPlaceholder" class="w-100 h-100 d-flex flex-column justify-content-center align-items-center text-muted opacity-50">
+                            <i class="fas fa-satellite fa-4x mb-3"></i>
+                            <h5>Waiting for Satellite Data stream...</h5>
+                        </div>
+                        <img id="imgPreview" src="#" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); max-height: 90%; max-width: 90%; border-radius: 8px; z-index: 10; box-shadow: 0 0 50px rgba(0,0,0,0.5);">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function handleNewUpload(input) {
+        if (input.files && input.files[0]) {
+            document.getElementById('fileName').innerText = input.files[0].name;
+            document.getElementById('fileName').classList.add('text-highlight');
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var img = document.getElementById('imgPreview');
+                var placeholder = document.getElementById('waitingPlaceholder');
+                var waitingScreen = document.getElementById('waitingScreen');
+                if(img) {
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    if(placeholder) placeholder.style.display = 'none';
+                    if(waitingScreen) waitingScreen.classList.remove('d-none');
+                    var resultsContainer = document.getElementById('resultsContainer');
+                    if(resultsContainer) resultsContainer.classList.add('d-none');
+                }
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function showLoader() {
+        if(document.getElementById('fileInput').files.length > 0) {
+            document.getElementById('loader').style.display = 'flex';
+        }
+    }
+
+    function switchView(event, mode) {
+        var resultsContainer = document.getElementById('resultsContainer');
+        if(resultsContainer && resultsContainer.classList.contains('d-none')) return;
+        const sections = document.querySelectorAll('.view-section');
+        sections.forEach(el => el.classList.add('d-none'));
+        const target = document.getElementById('view_' + mode);
+        if (target) target.classList.remove('d-none');
+        document.querySelectorAll('.btn-tab').forEach(btn => btn.classList.remove('active'));
+        if (event) event.currentTarget.classList.add('active');
+    }
+
+    var fsPlaceholder = document.createElement('div');
+    function toggleFullscreen(elementId) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        const btn = el.querySelector('button');
+        const icon = btn ? btn.querySelector('i') : null;
+        if (!el.classList.contains('fullscreen-mode')) {
+            el.parentNode.insertBefore(fsPlaceholder, el);
+            document.body.appendChild(el);
+            el.classList.add('fullscreen-mode');
+            if(icon) { icon.classList.remove('fa-expand'); icon.classList.add('fa-compress'); }
+        } else {
+            if(fsPlaceholder.parentNode) {
+                fsPlaceholder.parentNode.insertBefore(el, fsPlaceholder);
+                fsPlaceholder.remove();
+            }
+            el.classList.remove('fullscreen-mode');
+            if(icon) { icon.classList.remove('fa-compress'); icon.classList.add('fa-expand'); }
+        }
+    }
+</script>
+
+<style>
+    /* CSS CHO CONFIG CARD */
+    .config-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(136, 146, 176, 0.1);
+        border-radius: 8px;
+        padding: 15px;
+        transition: all 0.3s;
+    }
+    .config-card:hover {
+        background: rgba(100, 255, 218, 0.05);
+        border-color: var(--text-highlight);
+    }
+
+    /* FULLSCREEN */
+    .fullscreen-mode {
+        position: fixed !important; top: 0; left: 0;
+        width: 100vw !important; height: 100vh !important;
+        background-color: #0b1120 !important; z-index: 2147483647 !important;
+        padding: 0 !important; margin: 0 !important;
+        display: flex !important; overflow: hidden !important;
+    }
+    .view-header { background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); }
+    .fullscreen-mode .view-img { max-width: 95% !important; max-height: 90vh !important; width: auto !important; height: auto !important; }
+    .fullscreen-mode .status-bar { display: none; }
+
+    .fullscreen-mode .row { width: 100% !important; height: 100% !important; margin: 0 !important; }
+    .fullscreen-mode .compare-container { width: 100% !important; height: 100% !important; max-width: none !important; aspect-ratio: auto !important; border: none !important; border-radius: 0 !important; background: black !important; }
+    .fullscreen-mode .compare-img { object-fit: contain !important; padding: 20px; }
+    .fullscreen-mode .col-lg-8 { flex: 0 0 75% !important; max-width: 75% !important; border: none !important; }
+    .fullscreen-mode .col-lg-4 { flex: 0 0 25% !important; max-width: 25% !important; }
+
+    /* CŨ */
+    .btn-tab { color: #8892b0; border: 1px solid transparent; border-radius: 20px; padding: 5px 15px; font-size: 0.85rem; transition: all 0.3s; }
+    .btn-tab:hover { background: rgba(100, 255, 218, 0.1); color: var(--text-highlight); }
+    .btn-tab.active { background: rgba(100, 255, 218, 0.1); border-color: var(--text-highlight); color: var(--text-highlight); box-shadow: 0 0 10px rgba(100, 255, 218, 0.1); }
+    .view-img { max-width: 95%; max-height: 85vh; object-fit: contain; border-radius: 4px; }
+    .main-shadow { box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+    .bg-dark-soft { background-color: rgba(2, 12, 27, 0.4); }
+    .animate-fade { animation: fadeIn 0.5s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+    .compare-container { width: 80%; max-width: 600px; aspect-ratio: 1/1; position: relative; background: #000; border: 1px solid #233554; border-radius: 8px; overflow: hidden; }
+    .compare-img { width: 100%; height: 100%; object-fit: contain; position: absolute; top:0; left:0; transition: opacity 0.3s ease; }
+    .overlay-img { opacity: 1; z-index: 2; }
+    .compare-container:hover .overlay-img { opacity: 0; }
+    .compare-badge { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(10, 25, 47, 0.8); color: var(--text-highlight); border: 1px solid var(--text-highlight); padding: 5px 15px; border-radius: 20px; font-family: 'Consolas', monospace; font-size: 0.8rem; z-index: 10; transition: opacity 0.3s; pointer-events: none; }
+    .btn-outline-highlight { border: 1px solid var(--text-highlight); color: var(--text-highlight); }
+    .btn-outline-highlight:hover { background: rgba(100, 255, 218, 0.1); }
+
+    /* STYLE LOG PANEL */
+    .process-item { display: flex; margin-bottom: 25px; position: relative; }
+    .process-item::before { content: ''; position: absolute; left: 19px; top: 40px; bottom: -30px; width: 2px; background: rgba(136, 146, 176, 0.2); }
+    .process-item:last-child::before { display: none; }
+    .p-icon { width: 40px; height: 40px; border-radius: 50%; background: rgba(100, 255, 218, 0.1); color: var(--text-highlight); display: flex; align-items: center; justify-content: center; border: 1px solid var(--text-highlight); flex-shrink: 0; z-index: 2; }
+    .p-content { margin-left: 15px; flex-grow: 1; }
+    .p-title { color: var(--text-bright); font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; }
+    .p-desc { color: var(--text-main); font-size: 0.9rem; margin-bottom: 5px; }
+    .p-params { display: flex; gap: 8px; flex-wrap: wrap; }
+    .param-tag { background: rgba(255, 255, 255, 0.05); color: #8892b0; padding: 2px 8px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 0.75rem; border: 1px solid rgba(136, 146, 176, 0.2); }
+    .process-log-panel { overflow-y: auto; }
+    .process-log-panel::-webkit-scrollbar { width: 6px; }
+    .process-log-panel::-webkit-scrollbar-track { background: #020c1b; }
+    .process-log-panel::-webkit-scrollbar-thumb { background: #233554; border-radius: 3px; }
+</style>
+{% endblock %}
